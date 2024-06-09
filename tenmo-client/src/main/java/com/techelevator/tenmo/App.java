@@ -13,8 +13,8 @@ public class App {
 
     private final ConsoleService consoleService = new ConsoleService();
     private final AuthenticationService authenticationService = new AuthenticationService(API_BASE_URL);
-    private final AccountService accountService = new AccountService(API_BASE_URL);
-    private final TransferService transferService = new TransferService(API_BASE_URL);
+    private final AccountService accountService = new AccountService();
+    private final TransferService transferService = new TransferService();
 
     private AuthenticatedUser currentUser;
 
@@ -89,7 +89,7 @@ public class App {
     }
 
 	private void viewCurrentBalance() {
-        accountService.getBalance();
+        accountService.getBalance(currentUser);
 	}
 
 	private void viewTransferHistory() {
