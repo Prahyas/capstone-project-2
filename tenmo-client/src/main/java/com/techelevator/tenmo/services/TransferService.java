@@ -1,5 +1,7 @@
 package com.techelevator.tenmo.services;
 
+import com.techelevator.tenmo.model.Transfer;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 public class TransferService {
@@ -16,14 +18,14 @@ public class TransferService {
     public void getTransferHistory(int accountId) {
         String url = baseUrl + "/transfers/" + accountId;
         ResponseEntity<Transfer[]> responseEntity = restTemplate.getForEntity(url, Transfer[].class);
-        return responseEntity.getBody();
+        //return responseEntity.getBody();
     }
 
     //TODO
     public void getPendingRequests(int accountId) {
         String url = baseUrl + "/transfers/pending/" + accountId;
         ResponseEntity<Transfer[]> responseEntity = restTemplate.getForEntity(url, Transfer[].class);
-        return responseEntity.getBody();
+        //return responseEntity.getBody();
     }
 
     //TODO
