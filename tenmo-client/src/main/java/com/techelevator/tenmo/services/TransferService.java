@@ -8,26 +8,33 @@ public class TransferService {
     private final RestTemplate restTemplate = new RestTemplate();
 
     public TransferService(String url) {
+
         this.baseUrl = url;
     }
 
     //TODO
-    public void getTransferHistory() {
-
+    public void getTransferHistory(int accountId) {
+        String url = baseUrl + "/transfers/" + accountId;
+        ResponseEntity<Transfer[]> responseEntity = restTemplate.getForEntity(url, Transfer[].class);
+        return responseEntity.getBody();
     }
 
     //TODO
-    public void getPendingRequests() {
-
+    public void getPendingRequests(int accountId) {
+        String url = baseUrl + "/transfers/pending/" + accountId;
+        ResponseEntity<Transfer[]> responseEntity = restTemplate.getForEntity(url, Transfer[].class);
+        return responseEntity.getBody();
     }
 
     //TODO
-    public void sendBucks() {
-
+    public void sendBucks(Transfer transfer) {
+        String url = baseUrl + "/transfers/send";
+        restTemplate.postForObject(url, transfer, Void.class);
     }
 
     //TODO
-    public void requestBucks() {
-
+    public void requestBucks(Transfer transfer) {
+        String url = baseUrl + "/transfers/request";
+        restTemplate.postForObject(url, transfer, Void.class);
     }
 }
