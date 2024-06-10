@@ -21,7 +21,7 @@ public class AccountService {
     public BigDecimal getBalance(AuthenticatedUser currentUser) {
         BigDecimal balance = null;
         try {
-            balance = restTemplate.getForObject(baseUrl + "user", BigDecimal.class, currentUser.getToken());
+            balance = restTemplate.getForObject(baseUrl + "user/{id}/account", BigDecimal.class, currentUser.getToken());
         } catch (RestClientException e) {
             System.out.println("Error retrieving balance: " + e.getMessage());
         }

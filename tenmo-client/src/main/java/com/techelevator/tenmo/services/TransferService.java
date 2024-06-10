@@ -10,7 +10,6 @@ public class TransferService {
     private final RestTemplate restTemplate = new RestTemplate();
 
     public TransferService(String url) {
-
         this.baseUrl = url;
     }
 
