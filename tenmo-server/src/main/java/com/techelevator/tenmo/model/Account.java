@@ -7,16 +7,8 @@ import java.math.BigDecimal;
 
 public class Account {
 
-    @JsonProperty("account_id")
-    @NotNull
     private int account_id;
-
-    @JsonProperty("user_id")
-    @NotNull
     private int user_id;
-
-    @JsonProperty("balance")
-    @NotNull
     private BigDecimal balance;
 
     public Account() {}

@@ -2,7 +2,6 @@ package com.techelevator.tenmo.dao;
 
 import com.techelevator.tenmo.exception.DaoException;
 import com.techelevator.tenmo.model.Account;
-import com.techelevator.tenmo.model.RegisterUserDto;
 import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
@@ -14,9 +13,10 @@ import java.util.List;
 @Repository
 public class JdbcAccountDao implements AccountDao {
 
-    private final String ACCOUNT_SELECT = "SELECT account.account_id, tenmo_user.user_id, balance " +
-                                          "FROM account " +
-                                          "JOIN tenmo_user ON account.user_id = tenmo_user.user_id";
+//    private final String ACCOUNT_SELECT = "SELECT account.account_id, tenmo_user.user_id, balance " +
+//                                          "FROM account " +
+//                                          "JOIN tenmo_user ON account.user_id = tenmo_user.user_id";
+    private final String ACCOUNT_SELECT = "SELECT * FROM account;";
     private final JdbcTemplate jdbcTemplate;
 
     public JdbcAccountDao(JdbcTemplate jdbcTemplate) {
@@ -41,18 +41,20 @@ public class JdbcAccountDao implements AccountDao {
 
     @Override
     public Account getAccountByUserId(int userId) {
-        Account account = null;
-        String sql = ACCOUNT_SELECT +
-                " WHERE tenmo_user.user_id = ?";
-        try {
-            SqlRowSet results = jdbcTemplate.queryForRowSet(sql);
-            if (results.next()) {
-                account = mapRowToAccount(results);
+        List<Account> accountList = getAccounts();
+        Account userAccount = null;
+        for (Account account : accountList) {
+            if (account.getUser_id() == userId) {
+                userAccount = account;
+                break;
             }
-        } catch (CannotGetJdbcConnectionException e) {
-            throw new DaoException("Unable to connect to server or database", e);
         }
-        return account;
+        return userAccount;
+    }
+
+    @Override
+    public int getAccountIdByUserId(int userId) {
+        return getAccountByUserId(userId).getAccount_id();
     }
 
     private Account mapRowToAccount(SqlRowSet results) {

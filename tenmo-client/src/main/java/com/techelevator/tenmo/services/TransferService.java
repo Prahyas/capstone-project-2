@@ -1,8 +1,16 @@
 package com.techelevator.tenmo.services;
 
+import com.techelevator.tenmo.model.AuthenticatedUser;
 import com.techelevator.tenmo.model.Transfer;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class TransferService {
 
@@ -14,17 +22,39 @@ public class TransferService {
     }
 
     //TODO
-    public void getTransferHistory(int accountId) {
-        String url = baseUrl + "/transfers/" + accountId;
-        ResponseEntity<Transfer[]> responseEntity = restTemplate.getForEntity(url, Transfer[].class);
-        //return responseEntity.getBody();
+    public void getTransferHistory(AuthenticatedUser currentUser) {
+        Transfer[] transferHistoryArray = null;
+        try {
+            transferHistoryArray = restTemplate.getForObject(baseUrl + "user/{id}/transfer", Transfer[].class, currentUser.getUser().getId());
+            System.out.println("-------------------------------------");
+            System.out.println("           Transfer History          ");
+            System.out.println("-------------------------------------");
+            for (Transfer transfer : transferHistoryArray) {
+                System.out.println(transfer);
+            }
+        } catch (RestClientException e) {
+            System.out.println("Error retrieving transfer record: " + e.getMessage());
+        } catch (NullPointerException e) {
+            System.out.println("No transfer record found!");
+        }
     }
 
     //TODO
-    public void getPendingRequests(int accountId) {
-        String url = baseUrl + "/transfers/pending/" + accountId;
-        ResponseEntity<Transfer[]> responseEntity = restTemplate.getForEntity(url, Transfer[].class);
-        //return responseEntity.getBody();
+    public void getPendingRequests(AuthenticatedUser currentUser) {
+        Transfer[] transferHistoryPendingArray = null;
+        try {
+            transferHistoryPendingArray = restTemplate.getForObject(baseUrl + "user/{id}/transfer/pending/", Transfer[].class, currentUser.getUser().getId());
+            System.out.println("-------------------------------------");
+            System.out.println("    Transfer-In-Pending Details      ");
+            System.out.println("-------------------------------------");
+            for (Transfer transfer : transferHistoryPendingArray) {
+                System.out.println(transfer);
+            }
+        } catch (RestClientException e) {
+            System.out.println("Error retrieving pending transfer record: " + e.getMessage());
+        } catch (NullPointerException e) {
+            System.out.println("No transfer record found!");
+        }
     }
 
     //TODO

@@ -9,22 +9,24 @@ import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
+
 @Repository
 public class JdbcTransferDao implements TransferDao{
 
     private final JdbcTemplate jdbcTemplate;
+    private final AccountDao accountDao;
 
-    public JdbcTransferDao(JdbcTemplate jdbcTemplate) {
+    public JdbcTransferDao(JdbcTemplate jdbcTemplate, AccountDao accountDao) {
         this.jdbcTemplate = jdbcTemplate;
+        this.accountDao = accountDao;
     }
 
     @Override
-    public List<Transfer> getTransferHistoryByAccountId(int accountId) {
+    public List<Transfer> getAllTransfers() {
         List<Transfer> transferList = new ArrayList<>();
-        String sql = "SELECT * FROM transfer " +
-                "WHERE account_from = ? OR account_to = ?;";
+        String sql = "SELECT * FROM transfer;";
         try {
-            SqlRowSet results = jdbcTemplate.queryForRowSet(sql, accountId);
+            SqlRowSet results = jdbcTemplate.queryForRowSet(sql);
             while (results.next()) {
                 transferList.add(mapRowToTransfer(results));
             }
@@ -35,13 +37,13 @@ public class JdbcTransferDao implements TransferDao{
     }
 
     @Override
-    public List<Transfer> getTransferHistoryInPendingByAccountId(int accountId) {
+    public List<Transfer> getTransferHistoryByUserId(int userId) {
         List<Transfer> transferList = new ArrayList<>();
-        String sql = "SELECT transfer_id, transfer_type_id, t.transfer_status_id, account_from, account_to, amount FROM transfer t " +
-                "JOIN transfer_status ts ON t.transfer_status_id = ts.transfer_status_id" +
-                "WHERE t.account_from = ? OR t.account_to = ?;";
+        String sql = "SELECT t.transfer_id, t.transfer_type_id, t.transfer_status_id, t.account_from, t.account_to, t.amount FROM transfer t " +
+                "JOIN account a ON a.account_id = t.account_from OR a.account_id = t.account_to " +
+                "WHERE a.user_id = ?;";
         try {
-            SqlRowSet results = jdbcTemplate.queryForRowSet(sql, accountId);
+            SqlRowSet results = jdbcTemplate.queryForRowSet(sql, userId);
             while (results.next()) {
                 transferList.add(mapRowToTransfer(results));
             }
@@ -49,6 +51,18 @@ public class JdbcTransferDao implements TransferDao{
             throw new DaoException("Unable to connect to server or database", e);
         }
         return transferList;
+    }
+
+    @Override
+    public List<Transfer> getTransferHistoryInPendingByUserId(int userId) {
+        List<Transfer> transferList = getTransferHistoryByUserId(userId);
+        List<Transfer> transferPendingList = new ArrayList<>();
+        for (Transfer transfer : transferList) {
+            if (transfer.getTransferStatusId() == 1) {
+                transferPendingList.add(transfer);
+            }
+        }
+        return transferPendingList;
     }
 
     // Send TE bucks

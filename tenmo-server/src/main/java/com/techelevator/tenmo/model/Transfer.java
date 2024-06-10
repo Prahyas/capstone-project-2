@@ -7,22 +7,11 @@ import java.math.BigDecimal;
 
 public class Transfer {
 
-    @JsonProperty("transfer_id")
-    @NotNull
     private int transferId;
-    @JsonProperty("transfer_type_id")
-    @NotNull
     private int transferTypeId;
-    @JsonProperty("transfer_status_id")
-    @NotNull
     private int transferStatusId;
-    @JsonProperty("account_from")
-    @NotNull
     private int accountFrom;
-    @JsonProperty("account_to")
-    @NotNull
     private int accountTo;
-    @NotNull
     private BigDecimal amount;
 
     public int getTransferId() {
@@ -65,5 +54,11 @@ public class Transfer {
     }
     public void setAmount(BigDecimal amount) {
         this.amount = amount;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("Transfer_id: %d | Transfer_type_id: %d | Transfer_status_id: %d | Account_from: %d | Account_to: %d | Amount: %s",
+                transferId, transferTypeId, transferStatusId, accountFrom, accountTo, amount);
     }
 }

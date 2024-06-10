@@ -89,15 +89,15 @@ public class App {
     }
 
 	private void viewCurrentBalance() {
-        accountService.getBalance(currentUser);
+        System.out.println(accountService.getBalance(currentUser));
 	}
 
 	private void viewTransferHistory() {
-		transferService.getTransferHistory(currentUser.getUser().getId());
+        transferService.getTransferHistory(currentUser);
 	}
 
 	private void viewPendingRequests() {
-		transferService.getPendingRequests(currentUser.getUser().getId());
+		transferService.getPendingRequests(currentUser);
 	}
 
     //TODO

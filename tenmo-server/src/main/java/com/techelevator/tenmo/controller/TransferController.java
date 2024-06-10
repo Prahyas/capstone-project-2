@@ -2,13 +2,14 @@ package com.techelevator.tenmo.controller;
 
 import com.techelevator.tenmo.dao.TransferDao;
 import com.techelevator.tenmo.model.Transfer;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
-@RequestMapping("/transfer")
+@RequestMapping("/user")
 public class TransferController {
 
     private final TransferDao transferDao;
@@ -17,29 +18,33 @@ public class TransferController {
         this.transferDao = transferDao;
     }
 
-    //TODO
-    @GetMapping("/{accountId}")
-    public ResponseEntity<Transfer[]> getTransferHistory(@PathVariable int accountId) {
-        Transfer[] transfers = transferDao.getTransferHistoryByAccountId(accountId).toArray(new Transfer[0]);
-        return ResponseEntity.ok(transfers);
+    // Get the entire transfer history
+    @RequestMapping(path = "/all/transfer", method = RequestMethod.GET)
+    public List<Transfer> getAllTransferList() {
+        return transferDao.getAllTransfers();
+    }
+
+    // Get the transfer history of the current user
+    @RequestMapping(path = "/{id}/transfer", method = RequestMethod.GET)
+    public List<Transfer> getTransferHistory(@PathVariable int id) {
+        return transferDao.getTransferHistoryByUserId(id);
+    }
+
+    // Get the pending transfer history of the current user
+    @RequestMapping(path = "/{id}/transfer/pending", method = RequestMethod.GET)
+    public List<Transfer> getPendingRequests(@PathVariable int id) {
+        return transferDao.getTransferHistoryInPendingByUserId(id);
     }
 
     //TODO
-    @GetMapping("/pending/{accountId}")
-    public ResponseEntity<Transfer[]> getPendingRequests(@PathVariable int accountId) {
-        Transfer[] pendingRequests = transferDao.getTransferHistoryInPendingByAccountId(accountId).toArray(new Transfer[0]);
-        return ResponseEntity.ok(pendingRequests);
-    }
-
-    //TODO
-    @PostMapping("/send")
+    @PostMapping("/user/{id}/transfer/sending}")
     public ResponseEntity<Void> sendBucks(@RequestBody Transfer transfer) {
         //transferDao.sendBucks(transfer);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     //TODO
-    @PostMapping("/request")
+    @PostMapping("/user/{id}/transfer/requesting")
     public ResponseEntity<Void> requestBucks(@RequestBody Transfer transfer) {
         //transferDao.requestBucks(transfer);
         return new ResponseEntity<>(HttpStatus.CREATED);

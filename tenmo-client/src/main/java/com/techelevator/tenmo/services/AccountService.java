@@ -20,8 +20,10 @@ public class AccountService {
     //TODO
     public BigDecimal getBalance(AuthenticatedUser currentUser) {
         BigDecimal balance = null;
+        Account account = null;
         try {
-            balance = restTemplate.getForObject(baseUrl + "user/{id}/account", BigDecimal.class, currentUser.getToken());
+            account = restTemplate.getForObject(baseUrl + "user/{id}/account", Account.class, currentUser.getUser().getId());
+            balance = account.getBalance();
         } catch (RestClientException e) {
             System.out.println("Error retrieving balance: " + e.getMessage());
         }

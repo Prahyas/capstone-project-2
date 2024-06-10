@@ -6,8 +6,11 @@ import java.util.List;
 
 public interface TransferDao {
 
-    List<Transfer> getTransferHistoryByAccountId(int accountId);
-    List<Transfer> getTransferHistoryInPendingByAccountId(int accountId);
+    List<Transfer> getAllTransfers();
+
+    List<Transfer> getTransferHistoryByUserId(int userId);
+
+    List<Transfer> getTransferHistoryInPendingByUserId(int userId);
 
     // Need Send TE bukcs
     // Need Request TE bucks

@@ -19,13 +19,13 @@ public class AccountController {
     }
 
     //TODO
-    @RequestMapping(path = "", method = RequestMethod.GET)
+    @RequestMapping(path = "/all/account", method = RequestMethod.GET)
     public List<Account> list() {
         return accountDao.getAccounts();
     }
 
     //TODO
-    @RequestMapping(path = "/{id}/balance", method = RequestMethod.GET)
+    @RequestMapping(path = "/{id}/account", method = RequestMethod.GET)
     public Account get(@PathVariable int id) {
         Account account = accountDao.getAccountByUserId(id);
         if (account == null) {
