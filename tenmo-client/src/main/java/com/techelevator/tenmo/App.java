@@ -13,7 +13,7 @@ public class App {
 
     private final ConsoleService consoleService = new ConsoleService();
     private final AuthenticationService authenticationService = new AuthenticationService(API_BASE_URL);
-    private final AccountService accountService = new AccountService();
+    private final AccountService accountService = new AccountService(API_BASE_URL);
     private final TransferService transferService = new TransferService(API_BASE_URL);
 
     private AuthenticatedUser currentUser;
@@ -93,17 +93,19 @@ public class App {
 	}
 
 	private void viewTransferHistory() {
-		//transferService.getTransferHistory();
+		transferService.getTransferHistory(currentUser.getUser().getId());
 	}
 
 	private void viewPendingRequests() {
-		//transferService.getPendingRequests();
+		transferService.getPendingRequests(currentUser.getUser().getId());
 	}
 
+    //TODO
 	private void sendBucks() {
 		//transferService.sendBucks();
 	}
 
+    //TODO
 	private void requestBucks() {
 		//transferService.requestBucks();
 	}

@@ -10,14 +10,18 @@ import java.math.BigDecimal;
 
 public class AccountService {
 
-    private final String BASE_URL = "http://localhost:8080/user/";
+    private final String baseUrl;
     private final RestTemplate restTemplate = new RestTemplate();
+
+    public AccountService(String url) {
+        this.baseUrl = url;
+    }
 
     //TODO
     public BigDecimal getBalance(AuthenticatedUser currentUser) {
         BigDecimal balance = null;
         try {
-            balance = restTemplate.getForObject(BASE_URL + "balance", BigDecimal.class, currentUser.getToken());
+            balance = restTemplate.getForObject(baseUrl + "user", BigDecimal.class, currentUser.getToken());
         } catch (RestClientException e) {
             System.out.println("Error retrieving balance: " + e.getMessage());
         }
