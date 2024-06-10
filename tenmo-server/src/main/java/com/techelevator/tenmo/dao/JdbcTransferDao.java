@@ -65,8 +65,10 @@ public class JdbcTransferDao implements TransferDao{
         return transferPendingList;
     }
 
+    //TODO
     // Send TE bucks
 
+    //TODO
     // Request TE bucks
 
     private Transfer mapRowToTransfer(SqlRowSet results) {

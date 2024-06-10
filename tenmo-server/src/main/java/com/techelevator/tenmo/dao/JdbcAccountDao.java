@@ -13,10 +13,6 @@ import java.util.List;
 @Repository
 public class JdbcAccountDao implements AccountDao {
 
-//    private final String ACCOUNT_SELECT = "SELECT account.account_id, tenmo_user.user_id, balance " +
-//                                          "FROM account " +
-//                                          "JOIN tenmo_user ON account.user_id = tenmo_user.user_id";
-    private final String ACCOUNT_SELECT = "SELECT * FROM account;";
     private final JdbcTemplate jdbcTemplate;
 
     public JdbcAccountDao(JdbcTemplate jdbcTemplate) {
@@ -26,7 +22,7 @@ public class JdbcAccountDao implements AccountDao {
     @Override
     public List<Account> getAccounts() {
         List<Account> allAccounts = new ArrayList<>();
-        String sql = ACCOUNT_SELECT;
+        String sql = "SELECT * FROM account;";
         try {
             SqlRowSet results = jdbcTemplate.queryForRowSet(sql);
             while (results.next()) {
@@ -50,11 +46,6 @@ public class JdbcAccountDao implements AccountDao {
             }
         }
         return userAccount;
-    }
-
-    @Override
-    public int getAccountIdByUserId(int userId) {
-        return getAccountByUserId(userId).getAccount_id();
     }
 
     private Account mapRowToAccount(SqlRowSet results) {

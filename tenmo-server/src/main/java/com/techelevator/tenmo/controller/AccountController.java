@@ -18,13 +18,11 @@ public class AccountController {
         this.accountDao = accountDao;
     }
 
-    //TODO
     @RequestMapping(path = "/all/account", method = RequestMethod.GET)
     public List<Account> list() {
         return accountDao.getAccounts();
     }
 
-    //TODO
     @RequestMapping(path = "/{id}/account", method = RequestMethod.GET)
     public Account get(@PathVariable int id) {
         Account account = accountDao.getAccountByUserId(id);

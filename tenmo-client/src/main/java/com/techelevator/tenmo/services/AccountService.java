@@ -2,7 +2,6 @@ package com.techelevator.tenmo.services;
 
 import com.techelevator.tenmo.model.Account;
 import com.techelevator.tenmo.model.AuthenticatedUser;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
@@ -17,7 +16,6 @@ public class AccountService {
         this.baseUrl = url;
     }
 
-    //TODO
     public BigDecimal getBalance(AuthenticatedUser currentUser) {
         BigDecimal balance = null;
         Account account = null;

@@ -2,15 +2,8 @@ package com.techelevator.tenmo.services;
 
 import com.techelevator.tenmo.model.AuthenticatedUser;
 import com.techelevator.tenmo.model.Transfer;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.server.ResponseStatusException;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 public class TransferService {
 
@@ -21,7 +14,6 @@ public class TransferService {
         this.baseUrl = url;
     }
 
-    //TODO
     public void getTransferHistory(AuthenticatedUser currentUser) {
         Transfer[] transferHistoryArray = null;
         try {
@@ -39,7 +31,6 @@ public class TransferService {
         }
     }
 
-    //TODO
     public void getPendingRequests(AuthenticatedUser currentUser) {
         Transfer[] transferHistoryPendingArray = null;
         try {
