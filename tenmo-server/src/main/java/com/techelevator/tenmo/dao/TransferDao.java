@@ -12,6 +12,12 @@ public interface TransferDao {
 
     List<Transfer> getTransferHistoryInPendingByUserId(int userId);
 
+    Transfer getTransferByTransferId(int userId, int transferId);
+
+    Transfer updateTransfer(int userId, int transferId, Transfer transfer);
+
+    Transfer getTransferByOnlyTransferId(int transferId);
+
     //TODO
     // Need Send TE bucks
 

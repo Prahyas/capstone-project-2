@@ -2,6 +2,7 @@ package com.techelevator.tenmo.dao;
 
 import com.techelevator.tenmo.exception.DaoException;
 import com.techelevator.tenmo.model.Transfer;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
@@ -63,6 +64,52 @@ public class JdbcTransferDao implements TransferDao{
             }
         }
         return transferPendingList;
+    }
+
+    @Override
+    public Transfer getTransferByTransferId(int userId, int transferId) {
+        List<Transfer> transferList = getTransferHistoryByUserId(userId);
+        Transfer singleTransfer = null;
+        for (Transfer transfer : transferList) {
+            if (transfer.getTransferId() == transferId) {
+                singleTransfer = transfer;
+            }
+        }
+        return singleTransfer;
+    }
+
+    @Override
+    public Transfer updateTransfer(int userId, int transferId, Transfer transfer) {
+        Transfer updatedTransfer = null;
+        String sql = "UPDATE transfer SET transfer_status_id = ? WHERE transfer_id = ?;";
+        try {
+            int numberOfRows = jdbcTemplate.update(sql, transfer.getTransferStatusId(), transferId);
+            if (numberOfRows == 0) {
+                throw new DaoException("Zero rows affected, expected at least one");
+            } else {
+                updatedTransfer = getTransferByOnlyTransferId(transfer.getTransferId());
+            }
+        } catch (CannotGetJdbcConnectionException e) {
+            throw new DaoException("Unable to connect to server or database", e);
+        } catch (DataIntegrityViolationException e) {
+            throw new DaoException("Data integrity violation", e);
+        }
+        return updatedTransfer;
+    }
+
+    @Override
+    public Transfer getTransferByOnlyTransferId(int transferId) {
+        Transfer transfer = null;
+        String sql = "SELECT * FROM transfer WHERE transfer_id = ?;";
+        try {
+            SqlRowSet results = jdbcTemplate.queryForRowSet(sql, transferId);
+            if (results.next()) {
+                transfer = mapRowToTransfer(results);
+            }
+        } catch (CannotGetJdbcConnectionException e) {
+            throw new DaoException("Unable to connect to server or database", e);
+        }
+        return transfer;
     }
 
     //TODO

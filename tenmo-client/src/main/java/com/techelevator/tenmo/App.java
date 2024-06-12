@@ -76,10 +76,30 @@ public class App {
                 viewTransferHistory();
             } else if (menuSelection == 3) {
                 viewPendingRequests();
+                approvalMenu();
             } else if (menuSelection == 4) {
                 sendBucks();
             } else if (menuSelection == 5) {
                 requestBucks();
+            } else if (menuSelection == 0) {
+                continue;
+            } else {
+                System.out.println("Invalid Selection");
+            }
+            consoleService.pause();
+        }
+    }
+
+    private void approvalMenu() {
+        int menuSelection = -1;
+        while (menuSelection != 0) {
+            consoleService.printApprovalRejection();
+            menuSelection = consoleService.promptForMenuSelection("Please choose an option: ");
+            if (menuSelection == 1) {
+                handleApprovalRequest();
+                sendBucks();
+            } else if (menuSelection == 2) {
+                handleRejectRequest();
             } else if (menuSelection == 0) {
                 continue;
             } else {
@@ -100,6 +120,14 @@ public class App {
 	private void viewPendingRequests() {
 		transferService.getPendingRequests(currentUser);
 	}
+
+    private void handleApprovalRequest() {
+        if (transferService.approveRequest(currentUser)) {
+            //sendBucks();
+        }
+    }
+
+    private void handleRejectRequest() { transferService.rejectRequest(currentUser);}
 
     //TODO
 	private void sendBucks() {

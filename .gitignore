@@ -1,5 +1,14 @@
 node_modules
 /dist
+#Ignore target directories as they include .class files
+#.class files are created after you run your source code. So, you don't need to commit this directory as well as .class files
+tenmo-client/target/*.class
+tenmo-server/target/*.class
+
+*.class
+
+#Ignore README.md
+*.md
 
 # Visual Studio/.NET
 *.obj
