@@ -18,6 +18,8 @@ public interface TransferDao {
 
     Transfer getTransferByOnlyTransferId(int transferId);
 
+    Transfer createTransfer(int userId, Transfer updatedTransfer);
+
     //TODO
     // Need Send TE bucks
 

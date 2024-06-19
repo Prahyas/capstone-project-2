@@ -1,11 +1,14 @@
 package com.techelevator.tenmo;
 
 import com.techelevator.tenmo.model.AuthenticatedUser;
+import com.techelevator.tenmo.model.Transfer;
 import com.techelevator.tenmo.model.UserCredentials;
 import com.techelevator.tenmo.services.AccountService;
 import com.techelevator.tenmo.services.AuthenticationService;
 import com.techelevator.tenmo.services.ConsoleService;
 import com.techelevator.tenmo.services.TransferService;
+
+import java.math.BigDecimal;
 
 public class App {
 
@@ -78,9 +81,11 @@ public class App {
                 viewPendingRequests();
                 approvalMenu();
             } else if (menuSelection == 4) {
+                // Need to get list of accounts to send TE Bucks
                 sendBucks();  // Here we can change balances for both accounts
                 // After that, we need to POST the send transfer to transfer DB (transfer_status_id = 2, 'Approved') because it's sending, not request
             } else if (menuSelection == 5) {
+                // Need to get list of accounts to request TE Bucks
                 requestBucks();
             } else if (menuSelection == 0) {
                 continue;
@@ -129,21 +134,30 @@ public class App {
         // Need to get the amount to be transferred and then
         // For requester, requester's current balance + amount to be transferred
         // For sender, sender's current balance - amount to be transferred
-        if (transferService.approveRequest(currentUser)) {
-            //sendBucks();
+        int recipeientTransferId = consoleService.promptForInt("Please input transfer ID: ");
+        // For approval :
+        // currentUser = money receiver,
+        if (transferService.approveRequest(recipeientTransferId, currentUser)) {
+            //
+            Transfer transfer = transferService.getPendingTransferByTransferId(currentUser, recipeientTransferId);
+            // Update balances for both current user(current balance + amount) and the recipient(current balance - amount)
+
         }
     }
 
-    private void handleRejectRequest() { transferService.rejectRequest(currentUser);}
+    private void handleRejectRequest() { transferService.rejectRequest(currentUser); }
+
+    // Request : currentUser = money receiver, accountFromId = money sender
+    private void requestBucks() {
+        int accountFromId = consoleService.promptForInt("Please choose recipient's account ID you are requesting money from: ");
+        BigDecimal amount = consoleService.promptForBigDecimal("Please input amount in two decimal: ");
+        // POST into Transfer table, need to get account object by user ID
+        transferService.postTransfer(1, accountFromId, amount, currentUser, accountService.getAccountByUserId(currentUser));
+    }
 
     //TODO
 	private void sendBucks() {
 		//transferService.sendBucks();
-	}
-
-    //TODO
-	private void requestBucks() {
-		//transferService.requestBucks();
 	}
 
 }
