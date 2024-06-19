@@ -9,4 +9,6 @@ public interface AccountDao {
     List<Account> getAccounts();
 
     Account getAccountByUserId(int userId);
+
+    Account getAccountObjByAccountId(int userId, int accountId);
 }
