@@ -2,6 +2,7 @@ package com.techelevator.tenmo.services;
 
 import com.techelevator.tenmo.model.Account;
 import com.techelevator.tenmo.model.AuthenticatedUser;
+import com.techelevator.util.BasicLogger;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
@@ -23,7 +24,7 @@ public class AccountService {
             account = restTemplate.getForObject(baseUrl + "user/{id}/account", Account.class, currentUser.getUser().getId());
             balance = account.getBalance();
         } catch (RestClientException e) {
-            System.out.println("Error retrieving balance: " + e.getMessage());
+            BasicLogger.log("Error retrieving balance: " + e.getMessage());
         }
         return balance;
     }

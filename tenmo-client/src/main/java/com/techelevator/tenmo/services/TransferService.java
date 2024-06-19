@@ -39,9 +39,9 @@ public class TransferService {
                 System.out.println("-------------------------------------");
             }
         } catch (RestClientException e) {
-            System.out.println("Error retrieving transfer record: " + e.getMessage());
+            BasicLogger.log("Error retrieving transfer record: " + e.getMessage());
         } catch (NullPointerException e) {
-            System.out.println("No transfer record found!");
+            BasicLogger.log("No transfer record found!");
         }
     }
 
@@ -63,9 +63,9 @@ public class TransferService {
                 }
             }
         } catch (RestClientException e) {
-            System.out.println("Error retrieving pending transfer record: " + e.getMessage());
+            BasicLogger.log("Error retrieving pending transfer record: " + e.getMessage());
         } catch (NullPointerException e) {
-            System.out.println("No transfer record found!");
+            BasicLogger.log("No transfer record found!");
         }
     }
 
@@ -75,9 +75,9 @@ public class TransferService {
             ResponseEntity<Transfer> response = restTemplate.exchange(baseUrl + "user/{id}/transfer/{transferId}", HttpMethod.GET, makeAuthEntity(currentUser), Transfer.class, currentUser.getUser().getId(), transferId);
             transfer = response.getBody();
         } catch (RestClientException e) {
-            System.out.println("Error retrieving pending transfer record: " + e.getMessage());
+            BasicLogger.log("Error retrieving pending transfer record: " + e.getMessage());
         } catch (NullPointerException e) {
-            System.out.println("No transfer record found!");
+            BasicLogger.log("No transfer record found!");
         }
         return transfer;
     }
@@ -119,6 +119,7 @@ public class TransferService {
     public void rejectRequest(AuthenticatedUser currentUser) {
         int transferId = consoleService.promptForInt("Please select a transfer ID to reject: ");
         Transfer transfer = getPendingTransferByTransferId(currentUser, transferId);
+        // Set transfer_status_id = 3 for 'Reject'
         transfer.setTransferStatusId(3);
         HttpEntity<Transfer> entity = makeTransferEntity(transfer, currentUser);
         //boolean success = false;

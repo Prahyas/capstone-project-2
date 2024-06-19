@@ -152,12 +152,19 @@ public class App {
         int accountFromId = consoleService.promptForInt("Please choose recipient's account ID you are requesting money from: ");
         BigDecimal amount = consoleService.promptForBigDecimal("Please input amount in two decimal: ");
         // POST into Transfer table, need to get account object by user ID
+        // transfer_status_id & transfer_type_id = 1 for 'Pending' and 'Request'
         transferService.postTransfer(1, accountFromId, amount, currentUser, accountService.getAccountByUserId(currentUser));
     }
 
     //TODO
 	private void sendBucks() {
-		//transferService.sendBucks();
+        int accountToId = consoleService.promptForInt("Please choose recipient's account ID: ");
+        BigDecimal amount = consoleService.promptForBigDecimal("Please input amount in two decimal: ");
+        // POST into Transfer table
+        // transfer_status_id & transfer_type_id = 2 for 'Approved' and 'Send'
+        transferService.postTransfer(2, accountToId, amount, currentUser, accountService.getAccountByUserId(currentUser));
+        // Change balances for currentUser and receiver in account DB
+
 	}
 
 }
