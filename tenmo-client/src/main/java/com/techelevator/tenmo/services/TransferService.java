@@ -32,12 +32,22 @@ public class TransferService {
             ResponseEntity<Transfer[]> response = restTemplate.exchange(baseUrl + "user/{id}/transfer", HttpMethod.GET, makeAuthEntity(currentUser), Transfer[].class, currentUser.getUser().getId());
             transferHistoryArray = response.getBody();
             System.out.println("-------------------------------------");
-            System.out.println("           Transfer History          ");
+            System.out.println("Transfer                             ");
+            System.out.println("ID          From/To            Amount");
             System.out.println("-------------------------------------");
             for (Transfer transfer : transferHistoryArray) {
-                System.out.println(transfer);
-                System.out.println("-------------------------------------");
+                // 1: Request
+                if (transfer.getTransferTypeId() == 1) {
+                    System.out.printf("%d      FROM: %s          $ %s\n", transfer.getTransferId(),
+                            getUserNameByAccountId(currentUser, transfer.getAccountFrom()), transfer.getAmount());
+                    // 2: Send
+                } else if (transfer.getTransferTypeId() == 2) {
+                    System.out.printf("%d      TO: %s            $ %s\n", transfer.getTransferId(),
+                            getUserNameByAccountId(currentUser, transfer.getAccountTo()), transfer.getAmount());
+                }
             }
+            System.out.println("-------------------------------------");
+            getTransferDetailByTransferId(currentUser);
         } catch (RestClientException e) {
             BasicLogger.log("Error retrieving transfer record: " + e.getMessage());
         } catch (NullPointerException e) {
@@ -45,31 +55,59 @@ public class TransferService {
         }
     }
 
-    public void getPendingRequests(AuthenticatedUser currentUser) {
-        Transfer[] transferHistoryPendingArray = null;
-        try {
-            ResponseEntity<Transfer[]> response = restTemplate.exchange(baseUrl + "user/{id}/transfer/pending/", HttpMethod.GET, makeAuthEntity(currentUser), Transfer[].class, currentUser.getUser().getId());
-            transferHistoryPendingArray = response.getBody();
-            System.out.println("-------------------------------------");
-            System.out.println("    Transfer-In-Pending Details      ");
-            System.out.println("-------------------------------------");
-            // Need to get the logged-in user's account ID
-            int currentUserAccountId = accountService.getAccountByUserId(currentUser).getAccount_id();
-            for (Transfer transfer : transferHistoryPendingArray) {
-                // Only shows the requests made by the current user
-                if (transfer.getAccountFrom() == currentUserAccountId) {
-                    System.out.println(transfer);
-                    System.out.println("-------------------------------------");
-                }
+    private void getTransferDetailByTransferId(AuthenticatedUser currentUser) {
+        while (true) {
+            int transferId = consoleService.promptForInt("Please input transfer ID to view detail (0 to cancel): ");
+            if (transferId == 0) {
+                break;
             }
-        } catch (RestClientException e) {
-            BasicLogger.log("Error retrieving pending transfer record: " + e.getMessage());
-        } catch (NullPointerException e) {
-            BasicLogger.log("No transfer record found!");
+            Transfer transfer = getTransferByTransferId(currentUser, transferId);
+            System.out.println("-------------------------------------");
+            System.out.println("           Transfer Detail           ");
+            System.out.println("-------------------------------------");
+            System.out.printf("ID: %d\n" +
+                            "FROM: %s\n" +
+                            "TO: %s\n" +
+                            "TYPE: %s\n" +
+                            "STATUS: %s\n" +
+                            "AMOUNT: %s\n", transfer.getTransferId(), getUserNameByAccountId(currentUser, transfer.getAccountFrom()),
+                    getUserNameByAccountId(currentUser, transfer.getAccountTo()),
+                    getTypeString(transfer), getStatusString(transfer), transfer.getAmount());
+            System.out.println("-------------------------------------");
         }
     }
 
-    public Transfer getPendingTransferByTransferId(AuthenticatedUser currentUser, int transferId) {
+    public void getPendingRequests(AuthenticatedUser currentUser) {
+        Transfer[] transferHistoryPendingArray = null;
+        try {
+            ResponseEntity<Transfer[]> response = restTemplate.exchange(baseUrl + "user/{id}/transfer/pending/", HttpMethod.GET,
+                    makeAuthEntity(currentUser), Transfer[].class, currentUser.getUser().getId());
+            transferHistoryPendingArray = response.getBody();
+            System.out.println("-------------------------------------");
+            System.out.println("Transfer                             ");
+            System.out.println("ID             To              Amount");
+            System.out.println("-------------------------------------");
+            if (transferHistoryPendingArray.length != 0) {
+                int currentUserAccountId = accountService.getAccountByUserId(currentUser).getAccount_id();
+                for (Transfer transfer : transferHistoryPendingArray) {
+                    if (transfer.getAccountFrom() == currentUserAccountId) {
+                        System.out.printf("%d      TO: %s            $ %s", transfer.getTransferId(),
+                                getUserNameByAccountId(currentUser, transfer.getAccountTo()), transfer.getAmount());
+                    }
+                }
+                System.out.println("-------------------------------------");
+            } else {
+                System.out.println("There is no pending request0!");
+                System.out.println("Please hit 0 to cancel");
+            }
+        } catch (RestClientException e) {
+            System.out.println("Error retrieving pending transfer record: " + e.getMessage());
+        } catch (NullPointerException e) {
+            System.out.println("No transfer record found!");
+        }
+    }
+
+    public Transfer getTransferByTransferId(AuthenticatedUser currentUser, int transferId) {
         Transfer transfer = null;
         try {
             ResponseEntity<Transfer> response = restTemplate.exchange(baseUrl + "user/{id}/transfer/{transferId}", HttpMethod.GET, makeAuthEntity(currentUser), Transfer.class, currentUser.getUser().getId(), transferId);
@@ -101,7 +139,7 @@ public class TransferService {
     }
 
     public boolean approveRequest(int transferId, AuthenticatedUser currentUser) {
-        Transfer transfer = getPendingTransferByTransferId(currentUser, transferId);
+        Transfer transfer = getTransferByTransferId(currentUser, transferId);
         transfer.setTransferStatusId(2);
         HttpEntity<Transfer> transferEntity = makeTransferEntity(transfer, currentUser);
         boolean success = false;
@@ -118,7 +156,7 @@ public class TransferService {
 
     public void rejectRequest(AuthenticatedUser currentUser) {
         int transferId = consoleService.promptForInt("Please select a transfer ID to reject: ");
-        Transfer transfer = getPendingTransferByTransferId(currentUser, transferId);
+        Transfer transfer = getTransferByTransferId(currentUser, transferId);
         // Set transfer_status_id = 3 for 'Reject'
         transfer.setTransferStatusId(3);
         HttpEntity<Transfer> entity = makeTransferEntity(transfer, currentUser);
@@ -164,7 +202,49 @@ public class TransferService {
         return newTransfer;
     }
 
+    private String getTypeString(Transfer transfer) {
+        String type = null;
+        if (transfer.getTransferTypeId() == 1) {
+            type = "Request";
+        } else if (transfer.getTransferTypeId() == 2) {
+            type = "Send";
+        }
+        return type;
+    }
 
+    private String getStatusString(Transfer transfer) {
+        String status = null;
+        if (transfer.getTransferStatusId() == 1) {
+            status = "Pending";
+        } else if (transfer.getTransferStatusId() == 2) {
+            status = "Approved";
+        } else if (transfer.getTransferStatusId() == 3) {
+            status = "Rejected";
+        }
+        return status;
+    }
+
+    private String getUserNameByAccountId(AuthenticatedUser currentUser, int accountId) {
+        String userName = null;
+        int userId = 0;
+        try {
+            ResponseEntity<Account[]> responseAccount = restTemplate.exchange(baseUrl + "user/all/account", HttpMethod.GET, makeAuthEntity(currentUser), Account[].class);
+            Account[] accounts = responseAccount.getBody();
+            for (Account account : accounts) {
+                if (account.getAccount_id() == accountId) {
+                    userId = account.getUser_id();
+                }
+            }
+            ResponseEntity<User> responseUser = restTemplate.exchange(baseUrl + "user/userId/{id}", HttpMethod.GET, makeAuthEntity(currentUser), User.class, userId);
+            User user = responseUser.getBody();
+            userName = user.getUsername();
+        } catch (RestClientException e) {
+            System.out.println("Error retrieving pending Account/User record: " + e.getMessage());
+        } catch (NullPointerException e) {
+            System.out.println("No transfer record found!");
+        }
+        return userName;
+    }
 
     private HttpEntity<Transfer> makeTransferEntity(Transfer transfer, AuthenticatedUser currentUser) {
         HttpHeaders headers = new HttpHeaders();

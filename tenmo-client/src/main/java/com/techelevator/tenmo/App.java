@@ -75,6 +75,8 @@ public class App {
             menuSelection = consoleService.promptForMenuSelection("Please choose an option: ");
             if (menuSelection == 1) {
                 viewCurrentBalance();
+//          2. View transfer short version transfer history
+//          Then, choose transfer ID to view the transfer details
             } else if (menuSelection == 2) {
                 viewTransferHistory();
             } else if (menuSelection == 3) {
@@ -83,10 +85,11 @@ public class App {
             } else if (menuSelection == 4) {
                 // Need to get list of accounts to send TE Bucks
                 sendBucks();  // Here we can change balances for both accounts
-                // After that, we need to POST the send transfer to transfer DB (transfer_status_id = 2, 'Approved') because it's sending, not request
+                // In sendBucks(), I implemented POST the 'Send transfer' into transfer DB (transfer_status_id = 2, 'Approved') because it's sending
             } else if (menuSelection == 5) {
                 // Need to get list of accounts to request TE Bucks
                 requestBucks();
+                // In requestBucks(), I implemented POST the 'Send transfer' into transfer DB (transfer_status_id = 1, 'Pending') because it's request
             } else if (menuSelection == 0) {
                 continue;
             } else {
@@ -139,7 +142,7 @@ public class App {
         // currentUser = money receiver,
         if (transferService.approveRequest(recipeientTransferId, currentUser)) {
             //
-            Transfer transfer = transferService.getPendingTransferByTransferId(currentUser, recipeientTransferId);
+            Transfer transfer = transferService.getTransferByTransferId(currentUser, recipeientTransferId);
             // Update balances for both current user(current balance + amount) and the recipient(current balance - amount)
 
         }
