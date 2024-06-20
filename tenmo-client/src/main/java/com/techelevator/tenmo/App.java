@@ -80,7 +80,7 @@ public class App {
             } else if (menuSelection == 2) {
                 viewTransferHistory();
             } else if (menuSelection == 3) {
-                viewPendingRequests();
+
                 approvalMenu();
             } else if (menuSelection == 4) {
                 // Need to get list of accounts to send TE Bucks
@@ -102,6 +102,7 @@ public class App {
     private void approvalMenu() {
         int menuSelection = -1;
         while (menuSelection != 0) {
+            viewPendingRequests();
             consoleService.printApprovalRejection();
             menuSelection = consoleService.promptForMenuSelection("Please choose an option: ");
             if (menuSelection == 1) {
@@ -126,9 +127,7 @@ public class App {
         transferService.getTransferHistory(currentUser);
 	}
 
-	private void viewPendingRequests() {
-		transferService.getPendingRequests(currentUser);
-	}
+	private void viewPendingRequests() { transferService.getPendingRequests(currentUser); }
 
     private void handleApprovalRequest() {
         // Below will change the transfer from pending to approved, and return true.
