@@ -10,6 +10,7 @@ import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 public class AccountService {
 
@@ -20,12 +21,26 @@ public class AccountService {
         this.baseUrl = url;
     }
 
+    public Account[] getAllAccounts(AuthenticatedUser currentUser) {
+        Account[] accounts = null;
+        try {
+            ResponseEntity<Account[]> response =
+                    restTemplate.exchange(baseUrl + "user/all/account", HttpMethod.GET, makeAuthEntity(currentUser), Account[].class);
+            accounts = response.getBody();
+        } catch (RestClientException e) {
+            BasicLogger.log("Error retrieving accounts: " + e.getMessage());
+        } catch (NullPointerException e) {
+            BasicLogger.log("No transfer record found!");
+        }
+        return accounts;
+    }
+
     public BigDecimal getBalance(AuthenticatedUser currentUser) {
         BigDecimal balance = null;
-        Account account = null;
         try {
-            account = restTemplate.getForObject(baseUrl + "user/{id}/account", Account.class, currentUser.getUser().getId());
-            balance = account.getBalance();
+            ResponseEntity<Account> response =
+                    restTemplate.exchange(baseUrl + "user/{id}/account", HttpMethod.GET, makeAuthEntity(currentUser), Account.class, currentUser.getUser().getId());
+            balance = Objects.requireNonNull(response.getBody()).getBalance();
         } catch (RestClientException e) {
             BasicLogger.log("Error retrieving balance: " + e.getMessage());
         }
@@ -44,6 +59,30 @@ public class AccountService {
         }
         return account;
     }
+
+    public void updateAccountSendBucks(Account updatedAccount, AuthenticatedUser currentUser, int targetAccountId) {
+        HttpEntity<Account> entity = makeAccountEntity(updatedAccount, currentUser);
+
+        try {
+            restTemplate.exchange(baseUrl + "user/{id}/account/{accountId}", HttpMethod.PUT,
+                    entity, Account.class, currentUser.getUser().getId(), targetAccountId);
+        } catch (RestClientResponseException | ResourceAccessException e) {
+            BasicLogger.log(e.getMessage());
+        }
+    }
+
+    /*
+    public void updateAccountRequestBucks(Account updatedAccount, AuthenticatedUser currentUser, int targetId) {
+        HttpEntity<Account> entity = makeAccountEntity(updatedAccount, currentUser);
+
+        try {
+            restTemplate.exchange(baseUrl + "user/{id}/account/{accountId}/transfer/{transferId}/send/{targetId}", HttpMethod.PUT,
+                    entity, Account.class, currentUser.getUser().getId(), targetId);
+        } catch (RestClientResponseException | ResourceAccessException e) {
+            BasicLogger.log(e.getMessage());
+        }
+    }
+     */
 
     private HttpEntity<Account> makeAccountEntity(Account account, AuthenticatedUser currentUser) {
         HttpHeaders headers = new HttpHeaders();

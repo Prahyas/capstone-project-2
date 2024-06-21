@@ -1,6 +1,7 @@
 package com.techelevator.tenmo.services;
 
 
+import com.techelevator.tenmo.model.Account;
 import com.techelevator.tenmo.model.UserCredentials;
 
 import java.math.BigDecimal;
@@ -51,6 +52,16 @@ public class ConsoleService {
         System.out.println("1: Approve");
         System.out.println("2: Reject");
         System.out.println("0: Don't approve/reject yet");
+        System.out.println();
+    }
+
+    public void printAccounts(Account[] accounts) {
+        System.out.println("--------------------------------------------");
+        System.out.println("                 Accounts                   ");
+        System.out.println("--------------------------------------------");
+        for (Account account : accounts) {
+            System.out.println("Account Id: " + account.getAccount_id());
+        }
         System.out.println();
     }
 
