@@ -81,15 +81,14 @@ public class App {
             } else if (menuSelection == 2) {
                 viewTransferHistory();
             } else if (menuSelection == 3) {
-
                 approvalMenu();
             } else if (menuSelection == 4) {
                 accountService.getAllAccountsAndUsernames(currentUser);
                 sendBucks();  // Here we can change balances for both accounts
                 // In sendBucks(), I implemented POST the 'Send transfer' into transfer DB (transfer_status_id = 2, 'Approved') because it's sending
             } else if (menuSelection == 5) {
-                requestBucks();
                 accountService.getAllAccountsAndUsernames(currentUser);
+                requestBucks();
                 // In requestBucks(), I implemented POST the 'Send transfer' into transfer DB (transfer_status_id = 1, 'Pending') because it's request
             } else if (menuSelection == 0) {
                 continue;
@@ -108,7 +107,6 @@ public class App {
             menuSelection = consoleService.promptForMenuSelection("Please choose an option: ");
             if (menuSelection == 1) {
                 handleApprovalRequest();
-                //sendBucks();
             } else if (menuSelection == 2) {
                 handleRejectRequest();
             } else if (menuSelection == 0) {
@@ -166,19 +164,27 @@ public class App {
 
     //TODO
 	private void sendBucks() {
-        int accountToId = consoleService.promptForInt("Please choose recipient's account ID: ");
-        BigDecimal amount = consoleService.promptForBigDecimal("Please input amount in two decimal: ");
-        // POST into Transfer table
-        // transfer_status_id & transfer_type_id = 2 for 'Approved' and 'Send'
-        transferService.postTransfer(2, accountToId, amount, currentUser, accountService.getAccountByUserId(currentUser));
-        // Change balances for currentUser and receiver in account DB
-        Account updatedAccountForCurrentUser = accountService.getAccountByUserId(currentUser);
-        updatedAccountForCurrentUser.setBalance(updatedAccountForCurrentUser.getBalance().subtract(amount));
+        while (true) {
+            int accountToId = consoleService.promptForInt("Please choose recipient's account ID: ");
+            BigDecimal amount = consoleService.promptForBigDecimal("Please input amount in two decimal: ");
+            // Checking if amount is less than/equal to the current balance of the current user
+            if (amount.compareTo(accountService.getBalance(currentUser)) <= 0) {
+                // POST into Transfer table
+                // transfer_status_id & transfer_type_id = 2 for 'Approved' and 'Send'
+                transferService.postTransfer(2, accountToId, amount, currentUser, accountService.getAccountByUserId(currentUser));
+                // Change balances for currentUser and receiver in account DB
+                Account updatedAccountForCurrentUser = accountService.getAccountByUserId(currentUser);
+                updatedAccountForCurrentUser.setBalance(updatedAccountForCurrentUser.getBalance().subtract(amount));
 
-        Account updatedAccountForTargetUser = accountService.getAccountByAccountId(currentUser, accountToId);
-        updatedAccountForTargetUser.setBalance(updatedAccountForTargetUser.getBalance().add(amount));
+                Account updatedAccountForTargetUser = accountService.getAccountByAccountId(currentUser, accountToId);
+                updatedAccountForTargetUser.setBalance(updatedAccountForTargetUser.getBalance().add(amount));
 
-        accountService.updateAccountBucks(updatedAccountForCurrentUser, currentUser, updatedAccountForCurrentUser.getAccount_id());
-        accountService.updateAccountBucks(updatedAccountForTargetUser, currentUser, accountToId);
+                accountService.updateAccountBucks(updatedAccountForCurrentUser, currentUser, updatedAccountForCurrentUser.getAccount_id());
+                accountService.updateAccountBucks(updatedAccountForTargetUser, currentUser, accountToId);
+                break;
+            } else {
+                System.out.println("There is not enough TE bucks!");
+            }
+        }
 	}
 }

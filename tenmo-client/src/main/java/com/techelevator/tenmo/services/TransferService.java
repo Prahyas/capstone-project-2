@@ -90,9 +90,9 @@ public class TransferService {
             if (transferHistoryPendingArray.length != 0) {
                 int currentUserAccountId = accountService.getAccountByUserId(currentUser).getAccount_id();
                 for (Transfer transfer : transferHistoryPendingArray) {
-                    if (transfer.getAccountTo() == currentUserAccountId) {
-                        System.out.printf("%d      FROM: %s            $ %s\n", transfer.getTransferId(),
-                                getUserNameByAccountId(currentUser, transfer.getAccountFrom()), transfer.getAmount());
+                    if (transfer.getAccountFrom() == currentUserAccountId) {
+                        System.out.printf("%d      TO: %s            $ %s\n", transfer.getTransferId(),
+                                getUserNameByAccountId(currentUser, transfer.getAccountTo()), transfer.getAmount());
                     }
                 }
                 System.out.println("-------------------------------------");
@@ -143,13 +143,17 @@ public class TransferService {
         transfer.setTransferStatusId(2);
         HttpEntity<Transfer> transferEntity = makeTransferEntity(transfer, currentUser);
         boolean success = false;
-        try {
-            restTemplate.exchange(baseUrl + "user/{id}/transfer/{transferId}", HttpMethod.PUT, transferEntity, Transfer.class, currentUser.getUser().getId(), transferId);
-            success = true;
-        } catch (RestClientResponseException e) {
-            BasicLogger.log(e.getRawStatusCode() + " : " + e.getStatusText());
-        } catch (ResourceAccessException e) {
-            BasicLogger.log(e.getMessage());
+        if (transfer.getAmount().compareTo(accountService.getBalance(currentUser)) <= 0) {
+            try {
+                restTemplate.exchange(baseUrl + "user/{id}/transfer/{transferId}", HttpMethod.PUT, transferEntity, Transfer.class, currentUser.getUser().getId(), transferId);
+                success = true;
+            } catch (RestClientResponseException e) {
+                BasicLogger.log(e.getRawStatusCode() + " : " + e.getStatusText());
+            } catch (ResourceAccessException e) {
+                BasicLogger.log(e.getMessage());
+            }
+        } else {
+            System.out.println("Unable to approve the request, not enough TE bucks!");
         }
         return success;
     }
