@@ -133,8 +133,6 @@ public class App {
     private void handleApprovalRequest() {
         // Below will change the transfer from pending to approved, and return true.
         // If true, then will execute sendbucks method to change balances for both accounts
-        // TODO : need to implement method to change balances for both accounts
-        // Need to get the amount to be transferred and then
         // For requester, requester's current balance + amount to be transferred
         // For sender, sender's current balance - amount to be transferred
         int recipeientTransferId = consoleService.promptForInt("Please input transfer ID: ");

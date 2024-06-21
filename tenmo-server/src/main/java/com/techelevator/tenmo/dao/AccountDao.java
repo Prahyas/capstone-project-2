@@ -12,15 +12,6 @@ public interface AccountDao {
 
     Account getAccountObjByAccountId(int userId, int accountId);
 
-    //transferId to get amount, accountId to get balance, Account to update user's account
-    //Account updateAccountSubtractBalance(int userId, int transferId, int accountId);
-
-    //Account updateAccountSubtractBalance(int userId, int transferId, int accountId, Account updatedAccount);
-
-    //Account updateAccountBalance(int userId, int transferId, int accountId, Account updatedAccount);
-
     Account updateAccountBalance(int userId, int accountId, Account updatedAccount);
 
-    //transferId to get amount, accountId to get balance, Account to update user's account
-    //Account updateAccountAddBalance(int userId, int transferId, int accountId);
 }

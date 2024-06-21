@@ -83,18 +83,6 @@ public class AccountService {
         }
     }
 
-
-//    public void updateAccountSubtractBucks(Account updatedAccount, AuthenticatedUser currentUser, int targetAccountId) {
-//        HttpEntity<Account> entity = makeAccountEntity(updatedAccount, currentUser);
-//        try {
-//            restTemplate.exchange(baseUrl + "user/{id}/account/subtract", HttpMethod.PUT,
-//                    entity, Account.class, currentUser.getUser().getId(), targetAccountId);
-//        } catch (RestClientResponseException | ResourceAccessException e) {
-//            BasicLogger.log(e.getMessage());
-//        }
-//    }
-
-
     private HttpEntity<Account> makeAccountEntity(Account account, AuthenticatedUser currentUser) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);

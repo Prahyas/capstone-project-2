@@ -49,20 +49,7 @@ public class AccountController {
         }
     }
 
-    // subtract balance
-//    @RequestMapping(path = "/{id}/account/subtract", method = RequestMethod.PUT)
-//    @PreAuthorize("hasRole('USER')")
-//    public Account updateAccountSubtractBalance(@PathVariable int id, @PathVariable int transferId, @PathVariable int accountId, @RequestBody Account account) {
-//        account.setAccount_id(accountId);
-//        try {
-//            return accountDao.updateAccountSubtractBalance(id, transferId, accountId, account);
-//        } catch(DaoException e) {
-//            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Account not found");
-//        }
-//    }
-
-
-    // add balance
+    // Update balance
     @RequestMapping(path = "/{id}/account/{accountId}", method = RequestMethod.PUT)
     @PreAuthorize("hasRole('USER')")
     public Account updateAccountAddBalance(@PathVariable int id, @PathVariable int accountId, @RequestBody Account account) {
