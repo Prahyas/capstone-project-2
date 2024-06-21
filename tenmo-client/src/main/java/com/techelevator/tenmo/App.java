@@ -1,5 +1,6 @@
 package com.techelevator.tenmo;
 
+import com.techelevator.tenmo.model.Account;
 import com.techelevator.tenmo.model.AuthenticatedUser;
 import com.techelevator.tenmo.model.Transfer;
 import com.techelevator.tenmo.model.UserCredentials;
@@ -143,7 +144,14 @@ public class App {
             //
             Transfer transfer = transferService.getTransferByTransferId(currentUser, recipeientTransferId);
             // Update balances for both current user(current balance + amount) and the recipient(current balance - amount)
+            Account updatedAccountForCurrentUser = accountService.getAccountByUserId(currentUser);
+            updatedAccountForCurrentUser.setBalance(updatedAccountForCurrentUser.getBalance().add(transfer.getAmount()));
 
+            Account updatedAccountForTargetUser = accountService.getAccountByAccountId(currentUser, transfer.getAccountFrom());
+            updatedAccountForTargetUser.setBalance(updatedAccountForTargetUser.getBalance().subtract(transfer.getAmount()));
+
+            accountService.updateAccountBucks(updatedAccountForCurrentUser, currentUser, updatedAccountForCurrentUser.getAccount_id());
+            accountService.updateAccountBucks(updatedAccountForTargetUser, currentUser, transfer.getAccountFrom());
         }
     }
 
@@ -166,7 +174,14 @@ public class App {
         // transfer_status_id & transfer_type_id = 2 for 'Approved' and 'Send'
         transferService.postTransfer(2, accountToId, amount, currentUser, accountService.getAccountByUserId(currentUser));
         // Change balances for currentUser and receiver in account DB
-        
+        Account updatedAccountForCurrentUser = accountService.getAccountByUserId(currentUser);
+        updatedAccountForCurrentUser.setBalance(updatedAccountForCurrentUser.getBalance().subtract(amount));
+
+        Account updatedAccountForTargetUser = accountService.getAccountByAccountId(currentUser, accountToId);
+        updatedAccountForTargetUser.setBalance(updatedAccountForTargetUser.getBalance().add(amount));
+
+        accountService.updateAccountBucks(updatedAccountForCurrentUser, currentUser, updatedAccountForCurrentUser.getAccount_id());
+        accountService.updateAccountBucks(updatedAccountForTargetUser, currentUser, accountToId);
 	}
 
 }

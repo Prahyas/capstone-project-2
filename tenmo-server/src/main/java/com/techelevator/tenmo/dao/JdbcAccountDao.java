@@ -68,49 +68,68 @@ public class JdbcAccountDao implements AccountDao {
         return account;
     }
 
-    @Override
-    public Account updateAccountSubtractBalance(int userId, int transferId, int accountId) {
-        Account updatedAccount = null;
-        String sql = "UPDATE account SET balance = balance - ( " +
-                "SELECT amount FROM transfer " +
-                "WHERE transfer_id = ?)" +
-                "WHERE account_id = ?;";
-        try {
-            int numberOfRows = jdbcTemplate.update(sql, transferId, accountId);
-            if (numberOfRows == 0) {
-                throw new DaoException("Zero rows affected, expected at least one");
-            } else {
-                updatedAccount = getAccountObjByAccountId(userId, accountId);
-            }
-        } catch(CannotGetJdbcConnectionException e) {
-            throw new DaoException("Unable to connect to server or database", e);
-        } catch(DataIntegrityViolationException e) {
-            throw new DaoException("Data integrity violation", e);
-        }
-        return updatedAccount;
-    }
+//    @Override
+//    public Account updateAccountSubtractBalance(int userId, int transferId, int accountId) {
+//        Account updatedAccount = null;
+//        String sql = "UPDATE account SET balance = balance - ( " +
+//                "SELECT amount FROM transfer " +
+//                "WHERE transfer_id = ?)" +
+//                "WHERE account_id = ?;";
+//        try {
+//            int numberOfRows = jdbcTemplate.update(sql, transferId, accountId);
+//            if (numberOfRows == 0) {
+//                throw new DaoException("Zero rows affected, expected at least one");
+//            } else {
+//                updatedAccount = getAccountObjByAccountId(userId, accountId);
+//            }
+//        } catch(CannotGetJdbcConnectionException e) {
+//            throw new DaoException("Unable to connect to server or database", e);
+//        } catch(DataIntegrityViolationException e) {
+//            throw new DaoException("Data integrity violation", e);
+//        }
+//        return updatedAccount;
+//    }
 
     @Override
-    public Account updateAccountAddBalance(int userId, int transferId, int accountId) {
-        Account updatedAccount = null;
-        String sql = "UPDATE account SET balance = balance + ( " +
-                "SELECT amount FROM transfer " +
-                "WHERE transfer_id = ?)" +
-                "WHERE account_id = ?;";
+    public Account updateAccountBalance(int userId, int accountId, Account updatedAccount) {
+        Account newAccount = null;
+        String sql = "UPDATE account SET balance = ? WHERE account_id = ?;";
         try {
-            int numberOfRows = jdbcTemplate.update(sql, transferId, accountId);
+            int numberOfRows = jdbcTemplate.update(sql, updatedAccount.getBalance(), accountId);
             if (numberOfRows == 0) {
                 throw new DaoException("Zero rows affected, expected at least one");
             } else {
-                updatedAccount = getAccountObjByAccountId(userId, accountId);
+                newAccount = getAccountObjByAccountId(userId, accountId);
             }
         } catch(CannotGetJdbcConnectionException e) {
             throw new DaoException("Unable to connect to server or database", e);
         } catch(DataIntegrityViolationException e) {
             throw new DaoException("Data integrity violation", e);
         }
-        return updatedAccount;
+        return newAccount;
     }
+
+//    @Override
+//    public Account updateAccountAddBalance(int userId, int transferId, int accountId) {
+//        Account updatedAccount = null;
+//        String sql = "UPDATE account SET balance = balance + ( " +
+//                "SELECT amount FROM transfer " +
+//                "WHERE transfer_id = ?)" +
+//                "WHERE account_id = ?;";
+//        try {
+//            int numberOfRows = jdbcTemplate.update(sql, transferId, accountId);
+//            if (numberOfRows == 0) {
+//                throw new DaoException("Zero rows affected, expected at least one");
+//            } else {
+//                updatedAccount = getAccountObjByAccountId(userId, accountId);
+//            }
+//        } catch(CannotGetJdbcConnectionException e) {
+//            throw new DaoException("Unable to connect to server or database", e);
+//        } catch(DataIntegrityViolationException e) {
+//            throw new DaoException("Data integrity violation", e);
+//        }
+//        return updatedAccount;
+//    }
 
     private Account mapRowToAccount(SqlRowSet results) {
         Account account = new Account();

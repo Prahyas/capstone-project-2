@@ -60,29 +60,40 @@ public class AccountService {
         return account;
     }
 
-    public void updateAccountSendBucks(Account updatedAccount, AuthenticatedUser currentUser, int targetAccountId) {
-        HttpEntity<Account> entity = makeAccountEntity(updatedAccount, currentUser);
+    public Account getAccountByAccountId(AuthenticatedUser currentUser, int accountId) {
+        Account[] accounts = getAllAccounts(currentUser);
+        Account newAccount = null;
+        for (Account account : accounts) {
+            if (account.getAccount_id() == accountId) {
+                newAccount = account;
+                break;
+            }
+        }
+        return newAccount;
+    }
 
+    // Update balance for target user
+    public void updateAccountBucks(Account updatedAccount, AuthenticatedUser currentUser, int accountId) {
+        HttpEntity<Account> entity = makeAccountEntity(updatedAccount, currentUser);
         try {
             restTemplate.exchange(baseUrl + "user/{id}/account/{accountId}", HttpMethod.PUT,
-                    entity, Account.class, currentUser.getUser().getId(), targetAccountId);
+                    entity, Account.class, currentUser.getUser().getId(), accountId);
         } catch (RestClientResponseException | ResourceAccessException e) {
             BasicLogger.log(e.getMessage());
         }
     }
 
-    /*
-    public void updateAccountRequestBucks(Account updatedAccount, AuthenticatedUser currentUser, int targetId) {
-        HttpEntity<Account> entity = makeAccountEntity(updatedAccount, currentUser);
 
-        try {
-            restTemplate.exchange(baseUrl + "user/{id}/account/{accountId}/transfer/{transferId}/send/{targetId}", HttpMethod.PUT,
-                    entity, Account.class, currentUser.getUser().getId(), targetId);
-        } catch (RestClientResponseException | ResourceAccessException e) {
-            BasicLogger.log(e.getMessage());
-        }
-    }
-     */
+//    public void updateAccountSubtractBucks(Account updatedAccount, AuthenticatedUser currentUser, int targetAccountId) {
+//        HttpEntity<Account> entity = makeAccountEntity(updatedAccount, currentUser);
+//        try {
+//            restTemplate.exchange(baseUrl + "user/{id}/account/subtract", HttpMethod.PUT,
+//                    entity, Account.class, currentUser.getUser().getId(), targetAccountId);
+//        } catch (RestClientResponseException | ResourceAccessException e) {
+//            BasicLogger.log(e.getMessage());
+//        }
+//    }
+
 
     private HttpEntity<Account> makeAccountEntity(Account account, AuthenticatedUser currentUser) {
         HttpHeaders headers = new HttpHeaders();

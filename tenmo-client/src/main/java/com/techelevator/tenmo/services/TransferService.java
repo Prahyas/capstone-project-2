@@ -90,9 +90,9 @@ public class TransferService {
             if (transferHistoryPendingArray.length != 0) {
                 int currentUserAccountId = accountService.getAccountByUserId(currentUser).getAccount_id();
                 for (Transfer transfer : transferHistoryPendingArray) {
-                    if (transfer.getAccountFrom() == currentUserAccountId) {
-                        System.out.printf("%d      TO: %s            $ %s\n", transfer.getTransferId(),
-                                getUserNameByAccountId(currentUser, transfer.getAccountTo()), transfer.getAmount());
+                    if (transfer.getAccountTo() == currentUserAccountId) {
+                        System.out.printf("%d      FROM: %s            $ %s\n", transfer.getTransferId(),
+                                getUserNameByAccountId(currentUser, transfer.getAccountFrom()), transfer.getAmount());
                     }
                 }
                 System.out.println("-------------------------------------");
