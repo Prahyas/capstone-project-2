@@ -84,12 +84,12 @@ public class App {
 
                 approvalMenu();
             } else if (menuSelection == 4) {
-                consoleService.printAccounts(accountService.getAllAccounts(currentUser));
+                accountService.getAllAccountsAndUsernames(currentUser);
                 sendBucks();  // Here we can change balances for both accounts
                 // In sendBucks(), I implemented POST the 'Send transfer' into transfer DB (transfer_status_id = 2, 'Approved') because it's sending
             } else if (menuSelection == 5) {
-                consoleService.printAccounts(accountService.getAllAccounts(currentUser));
                 requestBucks();
+                accountService.getAllAccountsAndUsernames(currentUser);
                 // In requestBucks(), I implemented POST the 'Send transfer' into transfer DB (transfer_status_id = 1, 'Pending') because it's request
             } else if (menuSelection == 0) {
                 continue;
@@ -181,5 +181,4 @@ public class App {
         accountService.updateAccountBucks(updatedAccountForCurrentUser, currentUser, updatedAccountForCurrentUser.getAccount_id());
         accountService.updateAccountBucks(updatedAccountForTargetUser, currentUser, accountToId);
 	}
-
 }

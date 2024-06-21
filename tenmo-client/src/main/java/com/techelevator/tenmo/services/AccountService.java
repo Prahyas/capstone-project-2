@@ -2,6 +2,7 @@ package com.techelevator.tenmo.services;
 
 import com.techelevator.tenmo.model.Account;
 import com.techelevator.tenmo.model.AuthenticatedUser;
+import com.techelevator.tenmo.model.User;
 import com.techelevator.util.BasicLogger;
 import org.springframework.http.*;
 import org.springframework.web.client.ResourceAccessException;
@@ -27,6 +28,23 @@ public class AccountService {
             ResponseEntity<Account[]> response =
                     restTemplate.exchange(baseUrl + "user/all/account", HttpMethod.GET, makeAuthEntity(currentUser), Account[].class);
             accounts = response.getBody();
+        } catch (RestClientException e) {
+            BasicLogger.log("Error retrieving accounts: " + e.getMessage());
+        } catch (NullPointerException e) {
+            BasicLogger.log("No transfer record found!");
+        }
+        return accounts;
+    }
+
+    public Account[] getAllAccountsAndUsernames(AuthenticatedUser currentUser) {
+        Account[] accounts = null;
+        try {
+            ResponseEntity<Account[]> response =
+                    restTemplate.exchange(baseUrl + "user/all/account", HttpMethod.GET, makeAuthEntity(currentUser), Account[].class);
+            accounts = response.getBody();
+            for (Account account : accounts) {
+                System.out.println("Username: " + getUserNameByAccountId(currentUser, account.getAccount_id()) + " || Account Id: " + account.getAccount_id());
+            }
         } catch (RestClientException e) {
             BasicLogger.log("Error retrieving accounts: " + e.getMessage());
         } catch (NullPointerException e) {
@@ -81,6 +99,30 @@ public class AccountService {
         } catch (RestClientResponseException | ResourceAccessException e) {
             BasicLogger.log(e.getMessage());
         }
+    }
+
+    // Helper methods
+
+    private String getUserNameByAccountId(AuthenticatedUser currentUser, int accountId) {
+        String userName = null;
+        int userId = 0;
+        try {
+            ResponseEntity<Account[]> responseAccount = restTemplate.exchange(baseUrl + "user/all/account", HttpMethod.GET, makeAuthEntity(currentUser), Account[].class);
+            Account[] accounts = responseAccount.getBody();
+            for (Account account : accounts) {
+                if (account.getAccount_id() == accountId) {
+                    userId = account.getUser_id();
+                }
+            }
+            ResponseEntity<User> responseUser = restTemplate.exchange(baseUrl + "user/userId/{id}", HttpMethod.GET, makeAuthEntity(currentUser), User.class, userId);
+            User user = responseUser.getBody();
+            userName = user.getUsername();
+        } catch (RestClientException e) {
+            System.out.println("Error retrieving pending Account/User record: " + e.getMessage());
+        } catch (NullPointerException e) {
+            System.out.println("No transfer record found!");
+        }
+        return userName;
     }
 
     private HttpEntity<Account> makeAccountEntity(Account account, AuthenticatedUser currentUser) {
