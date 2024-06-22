@@ -180,7 +180,7 @@ public class TransferService {
 
     // For Sending TE Bucks : currentUser = money sender
     // accountToId : receiver's account ID
-    public Transfer makeSendTransfer(int accountToId, BigDecimal amount, Account currentUserAccount) {
+    private Transfer makeSendTransfer(int accountToId, BigDecimal amount, Account currentUserAccount) {
         Transfer newTransfer = new Transfer();
         newTransfer.setTransferTypeId(2);
         newTransfer.setTransferStatusId(2);
@@ -194,7 +194,7 @@ public class TransferService {
 
     // For Requesting TE Bucks : currentUser = money receiver
     // accountFromId : user who got requested for money from the current User
-    public Transfer makeRequestTransfer(int accountFromId, BigDecimal amount, Account currentUserAccount) {
+    private Transfer makeRequestTransfer(int accountFromId, BigDecimal amount, Account currentUserAccount) {
         Transfer newTransfer = new Transfer();
         newTransfer.setTransferTypeId(1);
         newTransfer.setTransferStatusId(1);

@@ -135,12 +135,6 @@ public class JdbcTransferDao implements TransferDao{
         return newTransfer;
     }
 
-    //TODO
-    // Send TE bucks
-
-    //TODO
-    // Request TE bucks
-
     private Transfer mapRowToTransfer(SqlRowSet results) {
         Transfer transfer = new Transfer();
         transfer.setTransferId(results.getInt("transfer_id"));

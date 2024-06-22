@@ -38,7 +38,7 @@ public class AccountController {
         }
     }
 
-    // get one account by account id
+    // Get one account by account id
     @RequestMapping(path = "/{id}/account/{accountId}", method = RequestMethod.GET)
     @PreAuthorize("hasRole('USER')")
     public Account getAccountByAccountId(@PathVariable int id, @PathVariable int accountId) {

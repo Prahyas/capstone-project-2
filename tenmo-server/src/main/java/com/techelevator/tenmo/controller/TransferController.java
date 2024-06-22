@@ -26,28 +26,44 @@ public class TransferController {
     @RequestMapping(path = "/all/transfer", method = RequestMethod.GET)
     @PreAuthorize("hasRole('USER')")
     public List<Transfer> getAllTransferList() {
-        return transferDao.getAllTransfers();
+        List<Transfer> transferList = transferDao.getAllTransfers();
+        if (transferList == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No transfer record found");
+        }
+        return transferList;
     }
 
     // Get the transfer history of the current user
     @RequestMapping(path = "/{id}/transfer", method = RequestMethod.GET)
     @PreAuthorize("hasRole('USER')")
     public List<Transfer> getTransferHistory(@PathVariable int id) {
-        return transferDao.getTransferHistoryByUserId(id);
+        List<Transfer> transferList = transferDao.getTransferHistoryByUserId(id);
+        if (transferList == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No transfer record found for the current user");
+        }
+        return transferList;
     }
 
     // Get the pending transfer history of the current user
     @RequestMapping(path = "/{id}/transfer/pending", method = RequestMethod.GET)
     @PreAuthorize("hasRole('USER')")
     public List<Transfer> getPendingRequests(@PathVariable int id) {
-        return transferDao.getTransferHistoryInPendingByUserId(id);
+        List<Transfer> transferList = transferDao.getTransferHistoryInPendingByUserId(id);
+        if (transferList == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No pending transfer request found for the current user");
+        }
+        return transferList;
     }
 
     // Get the transfer with specific transfer id
     @RequestMapping(path = "/{id}/transfer/{transferId}", method = RequestMethod.GET)
     @PreAuthorize("hasRole('USER')")
     public Transfer getTransfer(@PathVariable int id, @PathVariable int transferId) {
-        return transferDao.getTransferByTransferId(id, transferId);
+        Transfer transfer = transferDao.getTransferByTransferId(id, transferId);
+        if (transfer == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No transfer record found associate with the transfer ID");
+        }
+        return transfer;
     }
 
     // Update the transfer with specific transfer id and update Pending to Approved/Rejected
@@ -70,17 +86,4 @@ public class TransferController {
         return transferDao.createTransfer(id, transfer);
     }
 
-    //TODO
-    @PostMapping("/user/{id}/transfer/sending}")
-    public ResponseEntity<Void> sendBucks(@RequestBody Transfer transfer) {
-        //transferDao.sendBucks(transfer);
-        return new ResponseEntity<>(HttpStatus.CREATED);
-    }
-
-    //TODO
-    @PostMapping("/user/{id}/transfer/requesting")
-    public ResponseEntity<Void> requestBucks(@RequestBody Transfer transfer) {
-        //transferDao.requestBucks(transfer);
-        return new ResponseEntity<>(HttpStatus.CREATED);
-    }
 }

@@ -133,21 +133,22 @@ public class App {
         // If true, then will execute sendbucks method to change balances for both accounts
         // For requester, requester's current balance + amount to be transferred
         // For sender, sender's current balance - amount to be transferred
-        int recipeientTransferId = consoleService.promptForInt("Please input transfer ID: ");
+        int recipientTransferId = consoleService.promptForInt("Please input transfer ID: ");
         // For approval :
         // currentUser = money receiver,
-        if (transferService.approveRequest(recipeientTransferId, currentUser)) {
-            //
-            Transfer transfer = transferService.getTransferByTransferId(currentUser, recipeientTransferId);
-            // Update balances for both current user(current balance + amount) and the recipient(current balance - amount)
+        if (transferService.approveRequest(recipientTransferId, currentUser)) {
+            // Get the transfer by using the transfer ID
+            Transfer transfer = transferService.getTransferByTransferId(currentUser, recipientTransferId);
+            // Update balances for both current user(current balance - amount) and the recipient(current balance + amount)
+            // 1. Update account with new balance for current user (current balance - amount)
             Account updatedAccountForCurrentUser = accountService.getAccountByUserId(currentUser);
-            updatedAccountForCurrentUser.setBalance(updatedAccountForCurrentUser.getBalance().add(transfer.getAmount()));
-
-            Account updatedAccountForTargetUser = accountService.getAccountByAccountId(currentUser, transfer.getAccountFrom());
-            updatedAccountForTargetUser.setBalance(updatedAccountForTargetUser.getBalance().subtract(transfer.getAmount()));
-
+            updatedAccountForCurrentUser.setBalance(updatedAccountForCurrentUser.getBalance().subtract(transfer.getAmount()));
+            // 2. Update account with new balance for recipient user (current balance + amount)
+            Account updatedAccountForTargetUser = accountService.getAccountByAccountId(currentUser, transfer.getAccountTo());
+            updatedAccountForTargetUser.setBalance(updatedAccountForTargetUser.getBalance().add(transfer.getAmount()));
+            // 3. Update balances for both users
             accountService.updateAccountBucks(updatedAccountForCurrentUser, currentUser, updatedAccountForCurrentUser.getAccount_id());
-            accountService.updateAccountBucks(updatedAccountForTargetUser, currentUser, transfer.getAccountFrom());
+            accountService.updateAccountBucks(updatedAccountForTargetUser, currentUser, transfer.getAccountTo());
         }
     }
 
@@ -173,12 +174,13 @@ public class App {
                 // transfer_status_id & transfer_type_id = 2 for 'Approved' and 'Send'
                 transferService.postTransfer(2, accountToId, amount, currentUser, accountService.getAccountByUserId(currentUser));
                 // Change balances for currentUser and receiver in account DB
+                // 1. Update account with new balance for current user (current balance - amount)
                 Account updatedAccountForCurrentUser = accountService.getAccountByUserId(currentUser);
                 updatedAccountForCurrentUser.setBalance(updatedAccountForCurrentUser.getBalance().subtract(amount));
-
+                // 2. Update account with new balance for recipient user (current balance + amount)
                 Account updatedAccountForTargetUser = accountService.getAccountByAccountId(currentUser, accountToId);
                 updatedAccountForTargetUser.setBalance(updatedAccountForTargetUser.getBalance().add(amount));
-
+                // 3. Update balances for both users
                 accountService.updateAccountBucks(updatedAccountForCurrentUser, currentUser, updatedAccountForCurrentUser.getAccount_id());
                 accountService.updateAccountBucks(updatedAccountForTargetUser, currentUser, accountToId);
                 break;

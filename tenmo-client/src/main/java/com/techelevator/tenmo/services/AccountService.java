@@ -28,10 +28,10 @@ public class AccountService {
             ResponseEntity<Account[]> response =
                     restTemplate.exchange(baseUrl + "user/all/account", HttpMethod.GET, makeAuthEntity(currentUser), Account[].class);
             accounts = response.getBody();
-        } catch (RestClientException e) {
-            BasicLogger.log("Error retrieving accounts: " + e.getMessage());
-        } catch (NullPointerException e) {
-            BasicLogger.log("No transfer record found!");
+        } catch (RestClientResponseException e) {
+            BasicLogger.log("Error retrieving accounts: " + e.getRawStatusCode() + " : " + e.getStatusText());
+        } catch (ResourceAccessException e) {
+            BasicLogger.log("No account found: " + e.getMessage());
         }
         return accounts;
     }
@@ -45,10 +45,10 @@ public class AccountService {
             for (Account account : accounts) {
                 System.out.println("Username: " + getUserNameByAccountId(currentUser, account.getAccount_id()) + " || Account Id: " + account.getAccount_id());
             }
-        } catch (RestClientException e) {
-            BasicLogger.log("Error retrieving accounts: " + e.getMessage());
-        } catch (NullPointerException e) {
-            BasicLogger.log("No transfer record found!");
+        } catch (RestClientResponseException e) {
+            BasicLogger.log("Error retrieving accounts: " + e.getRawStatusCode() + " : " + e.getStatusText());
+        } catch (ResourceAccessException e) {
+            BasicLogger.log("No account found: " + e.getMessage());
         }
         return accounts;
     }
@@ -59,8 +59,10 @@ public class AccountService {
             ResponseEntity<Account> response =
                     restTemplate.exchange(baseUrl + "user/{id}/account", HttpMethod.GET, makeAuthEntity(currentUser), Account.class, currentUser.getUser().getId());
             balance = Objects.requireNonNull(response.getBody()).getBalance();
-        } catch (RestClientException e) {
-            BasicLogger.log("Error retrieving balance: " + e.getMessage());
+        } catch (RestClientResponseException e) {
+            BasicLogger.log("Error retrieving balance: " + e.getRawStatusCode() + " : " + e.getStatusText());
+        } catch (ResourceAccessException e) {
+            BasicLogger.log("No account found: " + e.getMessage());
         }
         return balance;
     }
@@ -71,9 +73,9 @@ public class AccountService {
             ResponseEntity<Account> response = restTemplate.exchange(baseUrl + "user/{id}/account", HttpMethod.GET, makeAuthEntity(currentUser), Account.class, currentUser.getUser().getId());
             account = response.getBody();
         } catch (RestClientResponseException e) {
-            BasicLogger.log(e.getRawStatusCode() + " : " + e.getStatusText());
+            BasicLogger.log("Error retrieving account associated with the user ID" + " : " + e.getRawStatusCode() + " : " + e.getStatusText());
         } catch (ResourceAccessException e) {
-            BasicLogger.log(e.getMessage());
+            BasicLogger.log("No account found: " + e.getMessage());
         }
         return account;
     }
@@ -97,7 +99,7 @@ public class AccountService {
             restTemplate.exchange(baseUrl + "user/{id}/account/{accountId}", HttpMethod.PUT,
                     entity, Account.class, currentUser.getUser().getId(), accountId);
         } catch (RestClientResponseException | ResourceAccessException e) {
-            BasicLogger.log(e.getMessage());
+            BasicLogger.log("Unable to update balance: " + e.getMessage());
         }
     }
 
@@ -117,10 +119,10 @@ public class AccountService {
             ResponseEntity<User> responseUser = restTemplate.exchange(baseUrl + "user/userId/{id}", HttpMethod.GET, makeAuthEntity(currentUser), User.class, userId);
             User user = responseUser.getBody();
             userName = user.getUsername();
-        } catch (RestClientException e) {
-            System.out.println("Error retrieving pending Account/User record: " + e.getMessage());
-        } catch (NullPointerException e) {
-            System.out.println("No transfer record found!");
+        } catch (RestClientResponseException e) {
+            BasicLogger.log("Error retrieving pending Account/User record: " + e.getRawStatusCode() + " : " + e.getStatusText());
+        } catch (ResourceAccessException e) {
+            BasicLogger.log("No account/username found!" + e.getMessage());
         }
         return userName;
     }
