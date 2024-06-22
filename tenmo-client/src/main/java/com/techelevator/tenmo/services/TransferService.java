@@ -176,7 +176,9 @@ public class TransferService {
         //return success;
     }
 
+    //
     // Helper methods
+    //
 
     // For Sending TE Bucks : currentUser = money sender
     // accountToId : receiver's account ID
@@ -262,5 +264,4 @@ public class TransferService {
         headers.setBearerAuth(currentUser.getToken());
         return new HttpEntity<>(headers);
     }
-
 }

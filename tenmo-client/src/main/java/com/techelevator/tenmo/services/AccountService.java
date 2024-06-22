@@ -73,7 +73,7 @@ public class AccountService {
             ResponseEntity<Account> response = restTemplate.exchange(baseUrl + "user/{id}/account", HttpMethod.GET, makeAuthEntity(currentUser), Account.class, currentUser.getUser().getId());
             account = response.getBody();
         } catch (RestClientResponseException e) {
-            BasicLogger.log("Error retrieving account associated with the user ID" + " : " + e.getRawStatusCode() + " : " + e.getStatusText());
+            BasicLogger.log("Error retrieving account associated with the user's ID" + " : " + e.getRawStatusCode() + " : " + e.getStatusText());
         } catch (ResourceAccessException e) {
             BasicLogger.log("No account found: " + e.getMessage());
         }
@@ -92,7 +92,6 @@ public class AccountService {
         return newAccount;
     }
 
-    // Update balance for target user
     public void updateAccountBucks(Account updatedAccount, AuthenticatedUser currentUser, int accountId) {
         HttpEntity<Account> entity = makeAccountEntity(updatedAccount, currentUser);
         try {
@@ -103,7 +102,9 @@ public class AccountService {
         }
     }
 
+    //
     // Helper methods
+    //
 
     private String getUserNameByAccountId(AuthenticatedUser currentUser, int accountId) {
         String userName = null;
@@ -111,6 +112,9 @@ public class AccountService {
         try {
             ResponseEntity<Account[]> responseAccount = restTemplate.exchange(baseUrl + "user/all/account", HttpMethod.GET, makeAuthEntity(currentUser), Account[].class);
             Account[] accounts = responseAccount.getBody();
+            System.out.println("-------------------------------------");
+            System.out.println("         Accounts in Database        ");
+            System.out.println("-------------------------------------");
             for (Account account : accounts) {
                 if (account.getAccount_id() == accountId) {
                     userId = account.getUser_id();

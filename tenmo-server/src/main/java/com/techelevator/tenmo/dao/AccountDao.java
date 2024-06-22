@@ -13,5 +13,4 @@ public interface AccountDao {
     Account getAccountObjByAccountId(int userId, int accountId);
 
     Account updateAccountBalance(int userId, int accountId, Account updatedAccount);
-
 }

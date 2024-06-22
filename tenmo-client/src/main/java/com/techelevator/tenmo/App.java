@@ -76,18 +76,16 @@ public class App {
             menuSelection = consoleService.promptForMenuSelection("Please choose an option: ");
             if (menuSelection == 1) {
                 viewCurrentBalance();
-//          2. View transfer short version transfer history
-//          Then, choose transfer ID to view the transfer details
             } else if (menuSelection == 2) {
                 viewTransferHistory();
             } else if (menuSelection == 3) {
                 approvalMenu();
             } else if (menuSelection == 4) {
-                accountService.getAllAccountsAndUsernames(currentUser);
-                sendBucks();  // Here we can change balances for both accounts
+                accountService.getAllAccountsAndUsernames(currentUser); // Display all users and accounts
+                sendBucks(); // Here we can change balances for both accounts
                 // In sendBucks(), I implemented POST the 'Send transfer' into transfer DB (transfer_status_id = 2, 'Approved') because it's sending
             } else if (menuSelection == 5) {
-                accountService.getAllAccountsAndUsernames(currentUser);
+                accountService.getAllAccountsAndUsernames(currentUser); // Display all users and accounts
                 requestBucks();
                 // In requestBucks(), I implemented POST the 'Send transfer' into transfer DB (transfer_status_id = 1, 'Pending') because it's request
             } else if (menuSelection == 0) {
@@ -130,7 +128,7 @@ public class App {
 
     private void handleApprovalRequest() {
         // Below will change the transfer from pending to approved, and return true.
-        // If true, then will execute sendbucks method to change balances for both accounts
+        // If true, then will execute sendBucks method to change balances for both accounts
         // For requester, requester's current balance + amount to be transferred
         // For sender, sender's current balance - amount to be transferred
         int recipientTransferId = consoleService.promptForInt("Please input transfer ID: ");
@@ -167,7 +165,7 @@ public class App {
 	private void sendBucks() {
         while (true) {
             int accountToId = consoleService.promptForInt("Please choose recipient's account ID: ");
-            BigDecimal amount = consoleService.promptForBigDecimal("Please input amount in two decimal: ");
+            BigDecimal amount = consoleService.promptForBigDecimal("Please input amount with 2 decimal places (examples: 10.50, 20, 19.69): ");
             // Checking if amount is less than/equal to the current balance of the current user
             if (amount.compareTo(accountService.getBalance(currentUser)) <= 0) {
                 // POST into Transfer table
@@ -185,7 +183,7 @@ public class App {
                 accountService.updateAccountBucks(updatedAccountForTargetUser, currentUser, accountToId);
                 break;
             } else {
-                System.out.println("There is not enough TE bucks!");
+                System.out.println("Not enough TE Bucks in account!");
             }
         }
 	}
