@@ -42,9 +42,13 @@ public class AccountService {
             ResponseEntity<Account[]> response =
                     restTemplate.exchange(baseUrl + "user/all/account", HttpMethod.GET, makeAuthEntity(currentUser), Account[].class);
             accounts = response.getBody();
+            System.out.println("-------------------------------------");
+            System.out.println("         Accounts in Database        ");
+            System.out.println("-------------------------------------");
             for (Account account : accounts) {
                 System.out.println("Username: " + getUserNameByAccountId(currentUser, account.getAccount_id()) + " || Account Id: " + account.getAccount_id());
             }
+            System.out.println("-------------------------------------");
         } catch (RestClientResponseException e) {
             BasicLogger.log("Error retrieving accounts: " + e.getRawStatusCode() + " : " + e.getStatusText());
         } catch (ResourceAccessException e) {
@@ -112,9 +116,6 @@ public class AccountService {
         try {
             ResponseEntity<Account[]> responseAccount = restTemplate.exchange(baseUrl + "user/all/account", HttpMethod.GET, makeAuthEntity(currentUser), Account[].class);
             Account[] accounts = responseAccount.getBody();
-            System.out.println("-------------------------------------");
-            System.out.println("         Accounts in Database        ");
-            System.out.println("-------------------------------------");
             for (Account account : accounts) {
                 if (account.getAccount_id() == accountId) {
                     userId = account.getUser_id();
