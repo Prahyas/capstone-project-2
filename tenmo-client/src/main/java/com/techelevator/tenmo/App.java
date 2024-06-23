@@ -156,6 +156,17 @@ public class App {
     private void requestBucks() {
         int accountFromId = consoleService.promptForInt("Please choose recipient's account ID you are requesting money from: ");
         BigDecimal amount = consoleService.promptForBigDecimal("Please input amount in two decimal: ");
+
+        if (accountFromId == accountService.getAccountByUserId(currentUser).getAccount_id()) {
+            System.out.println("Error: You cannot request money from yourself.");
+            return;
+        }
+
+        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+            System.out.println("Error: Amount must be greater than zero.");
+            return;
+        }
+
         // POST into Transfer table, need to get account object by user ID
         // transfer_status_id & transfer_type_id = 1 for 'Pending' and 'Request'
         transferService.postTransfer(1, accountFromId, amount, currentUser, accountService.getAccountByUserId(currentUser));
@@ -166,6 +177,19 @@ public class App {
         while (true) {
             int accountToId = consoleService.promptForInt("Please choose recipient's account ID: ");
             BigDecimal amount = consoleService.promptForBigDecimal("Please input amount with 2 decimal places (examples: 10.50, 20, 19.69): ");
+
+            // checking if user is sending bucks to themselves
+            if (accountToId == accountService.getAccountByUserId(currentUser).getAccount_id()) {
+                System.out.println("Error: You cannot send money to yourself.");
+               return;
+            }
+
+            //checking if the user is sending 0 or negative amount
+            if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+                System.out.println("Error: Amount must be greater than zero.");
+                return;
+            }
+
             // Checking if amount is less than/equal to the current balance of the current user
             if (amount.compareTo(accountService.getBalance(currentUser)) <= 0) {
                 // POST into Transfer table

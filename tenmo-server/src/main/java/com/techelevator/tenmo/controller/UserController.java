@@ -39,4 +39,3 @@ public class UserController {
         return userDao.getUserByUsername(username);
     }
 }
-// endpoints are working
