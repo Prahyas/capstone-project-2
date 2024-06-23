@@ -1,5 +1,6 @@
 package com.techelevator.tenmo.dao;
 
+import com.techelevator.tenmo.exception.AccountExceptions;
 import com.techelevator.tenmo.exception.DaoException;
 import com.techelevator.tenmo.model.Account;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -33,6 +34,11 @@ public class JdbcAccountDao implements AccountDao {
         } catch (CannotGetJdbcConnectionException e) {
             throw new DaoException("Unable to connect to server or database", e);
         }
+
+        if (allAccounts.isEmpty()) {
+            throw new AccountExceptions.AccountListNotFoundException("No accounts found");
+        }
+
         return allAccounts;
     }
 
@@ -46,6 +52,9 @@ public class JdbcAccountDao implements AccountDao {
                     userAccount = account;
                     break;
                 }
+            }
+            if (userAccount == null) {
+                throw new AccountExceptions.AccountNotFoundException("Account for user ID " + userId + " not found.");
             }
         } catch (CannotGetJdbcConnectionException e) {
             throw new DaoException("Unable to connect to server or database", e);
@@ -61,6 +70,8 @@ public class JdbcAccountDao implements AccountDao {
             SqlRowSet results = jdbcTemplate.queryForRowSet(sql, accountId);
             if (results.next()) {
                 account = mapRowToAccount(results);
+            }  else {
+                throw new AccountExceptions.AccountNotFoundException("Account ID " + accountId + " not found.");
             }
         } catch (CannotGetJdbcConnectionException e) {
             throw new DaoException("Unable to connect to server or database", e);
@@ -75,7 +86,7 @@ public class JdbcAccountDao implements AccountDao {
         try {
             int numberOfRows = jdbcTemplate.update(sql, updatedAccount.getBalance(), accountId);
             if (numberOfRows == 0) {
-                throw new DaoException("Zero rows affected, expected at least one");
+                throw new AccountExceptions.AccountUpdateException("Failed to update balance for account ID " + accountId);
             } else {
                 newAccount = getAccountObjByAccountId(userId, accountId);
             }

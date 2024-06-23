@@ -1,6 +1,7 @@
 package com.techelevator.tenmo.dao;
 
 import com.techelevator.tenmo.exception.DaoException;
+import com.techelevator.tenmo.exception.TransferExceptions;
 import com.techelevator.tenmo.model.Transfer;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.CannotGetJdbcConnectionException;
@@ -32,6 +33,10 @@ public class JdbcTransferDao implements TransferDao{
         } catch (CannotGetJdbcConnectionException e) {
             throw new DaoException("Unable to connect to server or database", e);
         }
+
+        if (transferList.isEmpty()) {
+            throw new TransferExceptions.TransferListNotFoundException("No transfer history found");
+        }
         return transferList;
     }
 
@@ -49,6 +54,11 @@ public class JdbcTransferDao implements TransferDao{
         } catch (CannotGetJdbcConnectionException e) {
             throw new DaoException("Unable to connect to server or database", e);
         }
+
+        if (transferList.isEmpty()) {
+            throw new TransferExceptions.TransferListNotFoundException("No transfer history found for userId " + userId);
+        }
+
         return transferList;
     }
 
@@ -66,6 +76,11 @@ public class JdbcTransferDao implements TransferDao{
         } catch (CannotGetJdbcConnectionException e) {
             throw new DaoException("Unable to connect to server or database", e);
         }
+
+        if (transferList.isEmpty()) {
+            throw new TransferExceptions.TransferListNotFoundException("No pending transfer history found for userId" + userId);
+        }
+
         return transferList;
     }
 
@@ -79,6 +94,8 @@ public class JdbcTransferDao implements TransferDao{
             SqlRowSet results = jdbcTemplate.queryForRowSet(sql, userId, transferId);
             if (results.next()) {
                 transfer = mapRowToTransfer(results);
+            } else {
+                throw new TransferExceptions.TransferNotFoundException("Transfer ID " + transferId + " not found.");
             }
         } catch (CannotGetJdbcConnectionException e) {
             throw new DaoException("Unable to connect to server or database", e);
@@ -93,7 +110,7 @@ public class JdbcTransferDao implements TransferDao{
         try {
             int numberOfRows = jdbcTemplate.update(sql, transfer.getTransferStatusId(), transferId);
             if (numberOfRows == 0) {
-                throw new DaoException("Zero rows affected, expected at least one");
+                throw new TransferExceptions.TransferUpdateException("Failed to update transfer ID " + transferId);
             } else {
                 updatedTransfer = getTransferByOnlyTransferId(transfer.getTransferId());
             }
@@ -113,6 +130,8 @@ public class JdbcTransferDao implements TransferDao{
             SqlRowSet results = jdbcTemplate.queryForRowSet(sql, transferId);
             if (results.next()) {
                 transfer = mapRowToTransfer(results);
+            }else {
+                throw new TransferExceptions.TransferNotFoundException("Transfer ID " + transferId + " not found.");
             }
         } catch (CannotGetJdbcConnectionException e) {
             throw new DaoException("Unable to connect to server or database", e);
@@ -132,6 +151,11 @@ public class JdbcTransferDao implements TransferDao{
         } catch (DataIntegrityViolationException e) {
             throw new DaoException("Data integrity violation", e);
         }
+
+        if (newTransfer == null) {
+            throw new TransferExceptions.TransferCreationException("Failed to create new transfer");
+        }
+
         return newTransfer;
     }
 

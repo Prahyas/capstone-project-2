@@ -1,7 +1,7 @@
 package com.techelevator.tenmo.controller;
 
 import com.techelevator.tenmo.dao.AccountDao;
-import com.techelevator.tenmo.exception.DaoException;
+import com.techelevator.tenmo.exception.AccountExceptions;
 import com.techelevator.tenmo.model.Account;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -25,16 +25,20 @@ public class AccountController {
     @RequestMapping(path = "/all/account", method = RequestMethod.GET)
     @PreAuthorize("hasRole('USER')")
     public List<Account> list() {
-        return accountDao.getAccounts();
+
+        try {
+            return accountDao.getAccounts();
+        } catch (AccountExceptions.AccountListNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
     }
 
     @RequestMapping(path = "/{id}/account", method = RequestMethod.GET)
     public Account get(@PathVariable int id) {
-        Account account = accountDao.getAccountByUserId(id);
-        if (account == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Account not found");
-        } else {
-            return account;
+        try {
+            return accountDao.getAccountByUserId(id);
+        } catch (AccountExceptions.AccountNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
     }
 
@@ -44,8 +48,8 @@ public class AccountController {
     public Account getAccountByAccountId(@PathVariable int id, @PathVariable int accountId) {
         try {
             return accountDao.getAccountObjByAccountId(id, accountId);
-        } catch(DaoException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Account not found");
+        } catch(AccountExceptions.AccountNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
     }
 
@@ -56,8 +60,8 @@ public class AccountController {
         account.setAccount_id(accountId);
         try {
             return accountDao.updateAccountBalance(id, accountId, account);
-        } catch(DaoException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Account not found");
+        } catch(AccountExceptions.AccountUpdateException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
     }
 
