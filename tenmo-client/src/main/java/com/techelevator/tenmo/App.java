@@ -76,18 +76,16 @@ public class App {
             menuSelection = consoleService.promptForMenuSelection("Please choose an option: ");
             if (menuSelection == 1) {
                 viewCurrentBalance();
-//          2. View transfer short version transfer history
-//          Then, choose transfer ID to view the transfer details
             } else if (menuSelection == 2) {
                 viewTransferHistory();
             } else if (menuSelection == 3) {
                 approvalMenu();
             } else if (menuSelection == 4) {
-                accountService.getAllAccountsAndUsernames(currentUser);
-                sendBucks();  // Here we can change balances for both accounts
+                accountService.getAllAccountsAndUsernames(currentUser); // Display all users and accounts
+                sendBucks(); // Here we can change balances for both accounts
                 // In sendBucks(), I implemented POST the 'Send transfer' into transfer DB (transfer_status_id = 2, 'Approved') because it's sending
             } else if (menuSelection == 5) {
-                accountService.getAllAccountsAndUsernames(currentUser);
+                accountService.getAllAccountsAndUsernames(currentUser); // Display all users and accounts
                 requestBucks();
                 // In requestBucks(), I implemented POST the 'Send transfer' into transfer DB (transfer_status_id = 1, 'Pending') because it's request
             } else if (menuSelection == 0) {
@@ -130,24 +128,25 @@ public class App {
 
     private void handleApprovalRequest() {
         // Below will change the transfer from pending to approved, and return true.
-        // If true, then will execute sendbucks method to change balances for both accounts
+        // If true, then will execute sendBucks method to change balances for both accounts
         // For requester, requester's current balance + amount to be transferred
         // For sender, sender's current balance - amount to be transferred
-        int recipeientTransferId = consoleService.promptForInt("Please input transfer ID: ");
+        int recipientTransferId = consoleService.promptForInt("Please input transfer ID: ");
         // For approval :
         // currentUser = money receiver,
-        if (transferService.approveRequest(recipeientTransferId, currentUser)) {
-            //
-            Transfer transfer = transferService.getTransferByTransferId(currentUser, recipeientTransferId);
-            // Update balances for both current user(current balance + amount) and the recipient(current balance - amount)
+        if (transferService.approveRequest(recipientTransferId, currentUser)) {
+            // Get the transfer by using the transfer ID
+            Transfer transfer = transferService.getTransferByTransferId(currentUser, recipientTransferId);
+            // Update balances for both current user(current balance - amount) and the recipient(current balance + amount)
+            // 1. Update account with new balance for current user (current balance - amount)
             Account updatedAccountForCurrentUser = accountService.getAccountByUserId(currentUser);
-            updatedAccountForCurrentUser.setBalance(updatedAccountForCurrentUser.getBalance().add(transfer.getAmount()));
-
-            Account updatedAccountForTargetUser = accountService.getAccountByAccountId(currentUser, transfer.getAccountFrom());
-            updatedAccountForTargetUser.setBalance(updatedAccountForTargetUser.getBalance().subtract(transfer.getAmount()));
-
+            updatedAccountForCurrentUser.setBalance(updatedAccountForCurrentUser.getBalance().subtract(transfer.getAmount()));
+            // 2. Update account with new balance for recipient user (current balance + amount)
+            Account updatedAccountForTargetUser = accountService.getAccountByAccountId(currentUser, transfer.getAccountTo());
+            updatedAccountForTargetUser.setBalance(updatedAccountForTargetUser.getBalance().add(transfer.getAmount()));
+            // 3. Update balances for both users
             accountService.updateAccountBucks(updatedAccountForCurrentUser, currentUser, updatedAccountForCurrentUser.getAccount_id());
-            accountService.updateAccountBucks(updatedAccountForTargetUser, currentUser, transfer.getAccountFrom());
+            accountService.updateAccountBucks(updatedAccountForTargetUser, currentUser, transfer.getAccountTo());
         }
     }
 
@@ -166,24 +165,25 @@ public class App {
 	private void sendBucks() {
         while (true) {
             int accountToId = consoleService.promptForInt("Please choose recipient's account ID: ");
-            BigDecimal amount = consoleService.promptForBigDecimal("Please input amount in two decimal: ");
+            BigDecimal amount = consoleService.promptForBigDecimal("Please input amount with 2 decimal places (examples: 10.50, 20, 19.69): ");
             // Checking if amount is less than/equal to the current balance of the current user
             if (amount.compareTo(accountService.getBalance(currentUser)) <= 0) {
                 // POST into Transfer table
                 // transfer_status_id & transfer_type_id = 2 for 'Approved' and 'Send'
                 transferService.postTransfer(2, accountToId, amount, currentUser, accountService.getAccountByUserId(currentUser));
                 // Change balances for currentUser and receiver in account DB
+                // 1. Update account with new balance for current user (current balance - amount)
                 Account updatedAccountForCurrentUser = accountService.getAccountByUserId(currentUser);
                 updatedAccountForCurrentUser.setBalance(updatedAccountForCurrentUser.getBalance().subtract(amount));
-
+                // 2. Update account with new balance for recipient user (current balance + amount)
                 Account updatedAccountForTargetUser = accountService.getAccountByAccountId(currentUser, accountToId);
                 updatedAccountForTargetUser.setBalance(updatedAccountForTargetUser.getBalance().add(amount));
-
+                // 3. Update balances for both users
                 accountService.updateAccountBucks(updatedAccountForCurrentUser, currentUser, updatedAccountForCurrentUser.getAccount_id());
                 accountService.updateAccountBucks(updatedAccountForTargetUser, currentUser, accountToId);
                 break;
             } else {
-                System.out.println("There is not enough TE bucks!");
+                System.out.println("Not enough TE Bucks in account!");
             }
         }
 	}

@@ -55,16 +55,6 @@ public class ConsoleService {
         System.out.println();
     }
 
-    public void printAccounts(Account[] accounts) {
-        System.out.println("--------------------------------------------");
-        System.out.println("                 Accounts                   ");
-        System.out.println("--------------------------------------------");
-        for (Account account : accounts) {
-            System.out.println("Account Id: " + account.getAccount_id());
-        }
-        System.out.println();
-    }
-
     public UserCredentials promptForCredentials() {
         String username = promptForString("Username: ");
         String password = promptForString("Password: ");
@@ -106,5 +96,4 @@ public class ConsoleService {
     public void printErrorMessage() {
         System.out.println("An error occurred. Check the log for details.");
     }
-
 }

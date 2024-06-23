@@ -144,7 +144,13 @@ public class JdbcTransferDao implements TransferDao{
         Transfer newTransfer = null;
         String sql = "INSERT INTO transfer (transfer_type_id, transfer_status_id, account_from, account_to, amount) VALUES (?, ?, ?, ?, ?) RETURNING transfer_id;";
         try {
-            int newTransferId = jdbcTemplate.queryForObject(sql, int.class, updatedTransfer.getTransferTypeId(), updatedTransfer.getTransferStatusId(), updatedTransfer.getAccountFrom(), updatedTransfer.getAccountTo(), updatedTransfer.getAmount());
+            int newTransferId =
+                    jdbcTemplate.queryForObject(sql, int.class,
+                            updatedTransfer.getTransferTypeId(),
+                            updatedTransfer.getTransferStatusId(),
+                            updatedTransfer.getAccountFrom(),
+                            updatedTransfer.getAccountTo(),
+                            updatedTransfer.getAmount());
             newTransfer = getTransferByOnlyTransferId(newTransferId);
         } catch (CannotGetJdbcConnectionException e) {
             throw new DaoException("Unable to connect to server or database", e);
@@ -159,12 +165,6 @@ public class JdbcTransferDao implements TransferDao{
         return newTransfer;
     }
 
-    //TODO
-    // Send TE bucks
-
-    //TODO
-    // Request TE bucks
-
     private Transfer mapRowToTransfer(SqlRowSet results) {
         Transfer transfer = new Transfer();
         transfer.setTransferId(results.getInt("transfer_id"));
@@ -175,5 +175,4 @@ public class JdbcTransferDao implements TransferDao{
         transfer.setAmount(results.getBigDecimal("amount"));
         return transfer;
     }
-
 }

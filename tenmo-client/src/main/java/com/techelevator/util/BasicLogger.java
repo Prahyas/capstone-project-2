@@ -32,5 +32,4 @@ public class BasicLogger {
 			throw new BasicLoggerException(e.getMessage());
 		}
 	}
-
 }

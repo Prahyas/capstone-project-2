@@ -42,6 +42,7 @@ public class TransferController {
         } catch (TransferExceptions.TransferNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e);
         }
+
     }
 
     // Get the pending transfer history of the current user
@@ -90,17 +91,4 @@ public class TransferController {
         }
     }
 
-    //TODO
-    @PostMapping("/user/{id}/transfer/sending}")
-    public ResponseEntity<Void> sendBucks(@RequestBody Transfer transfer) {
-        //transferDao.sendBucks(transfer);
-        return new ResponseEntity<>(HttpStatus.CREATED);
-    }
-
-    //TODO
-    @PostMapping("/user/{id}/transfer/requesting")
-    public ResponseEntity<Void> requestBucks(@RequestBody Transfer transfer) {
-        //transferDao.requestBucks(transfer);
-        return new ResponseEntity<>(HttpStatus.CREATED);
-    }
 }
